@@ -1,10 +1,11 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
+import Pagination from '@/Components/Pagination.vue';
 
 const props = defineProps({
     cashAccount: Object,
-    transactions: Array,
+    transactions: Object, // Changed from Array to Object to support pagination
     balance: Number
 });
 
@@ -69,7 +70,7 @@ const formatDate = (dateString) => {
                             </Link>
                         </div>
                         
-                        <div v-if="transactions.length === 0" class="text-center py-8">
+                        <div v-if="transactions.data.length === 0" class="text-center py-8">
                             <p class="text-gray-500">No transactions found for this account</p>
                             <Link :href="route('transactions.create', { cash_account_id: cashAccount.id })" class="mt-4 inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700">
                                 Record your first transaction
@@ -89,7 +90,7 @@ const formatDate = (dateString) => {
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
-                                        <tr v-for="transaction in transactions" :key="transaction.id">
+                                        <tr v-for="transaction in transactions.data" :key="transaction.id">
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {{ formatDate(transaction.transaction_date) }}
                                             </td>
@@ -118,6 +119,11 @@ const formatDate = (dateString) => {
                                         </tr>
                                     </tbody>
                                 </table>
+                                
+                                <!-- Pagination Links -->
+                                <div class="mt-6">
+                                    <Pagination :links="transactions.links" />
+                                </div>
                             </div>
                         </div>
                     </div>

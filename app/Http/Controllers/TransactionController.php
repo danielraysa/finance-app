@@ -19,7 +19,7 @@ class TransactionController extends Controller
         $transactions = Auth::user()->transactions()
             ->with(['cashAccount', 'category'])
             ->latest('transaction_date')
-            ->paginate(15);
+            ->paginate(10);
         
         return Inertia::render('Transactions/Index', [
             'transactions' => $transactions

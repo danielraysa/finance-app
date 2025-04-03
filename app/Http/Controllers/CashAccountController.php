@@ -14,7 +14,9 @@ class CashAccountController extends Controller
      */
     public function index()
     {
-        $cashAccounts = Auth::user()->cashAccounts()->get();
+        $cashAccounts = Auth::user()->cashAccounts()
+            ->orderBy('name')
+            ->paginate(10);
         
         return Inertia::render('CashAccounts/Index', [
             'cashAccounts' => $cashAccounts
@@ -62,10 +64,11 @@ class CashAccountController extends Controller
             ->with('category')
             ->latest('transaction_date')
             ->paginate(10);
-            
+
         return Inertia::render('CashAccounts/Show', [
             'cashAccount' => $cashAccount,
-            'transactions' => $transactions
+            'transactions' => $transactions,
+            'balance' => $cashAccount->current_balance
         ]);
     }
 
