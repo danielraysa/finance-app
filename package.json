@@ -18,6 +18,8 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
-        "chart.js": "^4.4.8"
+        "chart.js": "^4.4.8",
+        "jspdf": "^3.0.1",
+        "jspdf-autotable": "^5.0.2"
     }
 }

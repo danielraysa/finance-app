@@ -1,8 +1,11 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { Chart, registerables } from 'chart.js';
+// Import jsPDF and jspdf-autotable
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 // Register all Chart.js components
 Chart.register(...registerables);
@@ -60,7 +63,7 @@ const renderPieChart = () => {
             responsive: true,
             plugins: {
                 legend: {
-                    position: 'right',
+                    position: 'bottom',
                 }
             }
         }
@@ -91,8 +94,8 @@ const applyFilters = () => {
 };
 
 const resetFilters = () => {
-    startDate.value = new Date().toISOString().substr(0, 7) + '-01'; // First day of current month
-    endDate.value = new Date().toISOString().substr(0, 10); // Today
+    startDate.value = new Date().toISOString().substring(0, 7) + '-01'; // First day of current month
+    endDate.value = new Date().toISOString().substring(0, 10); // Today
     cashAccountId.value = '';
     type.value = '';
     
@@ -115,6 +118,179 @@ const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 };
+
+const downloadCSV = () => {
+    const headers = ['Date', 'Category', 'Account', 'Description', 'Reference', 'Type', 'Amount'];
+    const rows = props.transactions.map(transaction => {
+        return [
+            formatDate(transaction.transaction_date),
+            transaction.category.name,
+            transaction.cash_account.name,
+            transaction.description || '',
+            transaction.reference_number || '',
+            transaction.type,
+            transaction.amount
+        ];
+    });
+
+    const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const fileName = `financial_report_${formatDate(new Date())}.csv`;
+    
+    if (navigator.msSaveBlob) { // IE 10+
+        navigator.msSaveBlob(blob, fileName);
+    } else {
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+};
+
+// Add PDF export function
+const downloadPDF = () => {
+    // Create a new PDF document
+    const doc = new jsPDF();
+    
+    // Add title
+    doc.setFontSize(18);
+    doc.text('Financial Report', 14, 22);
+    
+    // Add date range
+    doc.setFontSize(12);
+    doc.text(`Period: ${formatDate(startDate.value)} to ${formatDate(endDate.value)}`, 14, 30);
+    
+    // Add summary section
+    doc.setFontSize(14);
+    doc.text('Summary', 14, 40);
+    
+    // Create summary table
+    autoTable(doc, {
+        startY: 45,
+        head: [['Type', 'Amount']],
+        body: [
+            ['Total Income', formatCurrency(props.summary.totalIncome)],
+            ['Total Expense', formatCurrency(props.summary.totalExpense)],
+            ['Net Balance', formatCurrency(props.summary.netBalance)]
+        ],
+        theme: 'grid',
+        headStyles: { fillColor: [66, 66, 255] }
+    });
+    
+    // Add category breakdown section
+    const finalY = doc.lastAutoTable.finalY || 45;
+    doc.text('Category Breakdown', 14, finalY + 15);
+    
+    // Check if we have a pie chart to include
+    if (pieChartRef.value && props.categoryBreakdown.length > 0) {
+        // Get the canvas element
+        const canvas = document.getElementById('categoryPieChart');
+        if (canvas) {
+            // Convert the canvas to an image
+            const imgData = canvas.toDataURL('image/png');
+            
+            // Create category breakdown table (narrower to make room for chart)
+            const categoryData = props.categoryBreakdown.map(item => [
+                item.category.name,
+                item.category.type.charAt(0).toUpperCase() + item.category.type.slice(1),
+                formatCurrency(item.total),
+                `${Math.round((item.total / (item.category.type === 'income' ? props.summary.totalIncome : props.summary.totalExpense)) * 100)}%`
+            ]);
+            
+            // Calculate available space
+            const tableHeight = categoryData.length * 10 + 15; // Approximate height of table
+            const chartSize = Math.min(60, tableHeight); // Make chart size proportional but not too big
+            
+            // Add the chart image to the PDF - smaller size and better positioned
+            doc.addImage(imgData, 'PNG', 130, finalY + 20, chartSize, chartSize);
+            
+            autoTable(doc, {
+                startY: finalY + 20,
+                head: [['Category', 'Type', 'Amount', 'Percentage']],
+                body: categoryData,
+                theme: 'grid',
+                headStyles: { fillColor: [66, 66, 255] },
+                margin: { right: 100 }, // Make room for the chart
+                tableWidth: 110
+            });
+        } else {
+            // If canvas element not found, just show the table normally
+            createCategoryTable(doc, finalY + 20);
+        }
+    } else {
+        // No chart available, just show the table normally
+        createCategoryTable(doc, finalY + 20);
+    }
+    
+    // Add transactions section
+    const finalY2 = doc.lastAutoTable.finalY || (finalY + 20);
+    // Add some extra space to ensure no overlap
+    const transactionsStartY = finalY2 + 20;
+    
+    doc.text('Transactions', 14, finalY2 + 15);
+    
+    // Create transactions table
+    const transactionData = props.transactions.map(transaction => [
+        formatDate(transaction.transaction_date),
+        transaction.category.name,
+        transaction.cash_account.name,
+        transaction.description || '-',
+        transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1),
+        (transaction.type === 'income' ? '+' : '-') + ' ' + formatCurrency(transaction.amount)
+    ]);
+    
+    autoTable(doc, {
+        startY: transactionsStartY,
+        head: [['Date', 'Category', 'Account', 'Description', 'Type', 'Amount']],
+        body: transactionData,
+        theme: 'grid',
+        headStyles: { fillColor: [66, 66, 255] },
+        didDrawPage: (data) => {
+            // Add header to each page
+            doc.setFontSize(10);
+            doc.text('Financial Report', data.settings.margin.left, 10);
+        },
+        // Adjust column widths to fit content better
+        columnStyles: {
+            0: { cellWidth: 25 }, // Date
+            1: { cellWidth: 30 }, // Category
+            2: { cellWidth: 30 }, // Account
+            3: { cellWidth: 40 }, // Description
+            4: { cellWidth: 20 }, // Type
+            5: { cellWidth: 40 }  // Amount
+        }
+    });
+    
+    // Save the PDF
+    const fileName = `financial_report_${formatDate(new Date()).replace(/\s/g, '_')}.pdf`;
+    doc.save(fileName);
+};
+
+// Helper function to create the category table (used when no chart is available)
+const createCategoryTable = (doc, startY) => {
+    const categoryData = props.categoryBreakdown.map(item => [
+        item.category.name,
+        item.category.type.charAt(0).toUpperCase() + item.category.type.slice(1),
+        formatCurrency(item.total),
+        `${Math.round((item.total / (item.category.type === 'income' ? props.summary.totalIncome : props.summary.totalExpense)) * 100)}%`,
+        item.count
+    ]);
+    
+    autoTable(doc, {
+        startY: startY,
+        head: [['Category', 'Type', 'Amount', 'Percentage', 'Count']],
+        body: categoryData,
+        theme: 'grid',
+        headStyles: { fillColor: [66, 66, 255] }
+    });
+};
+
 </script>
 
 <template>
@@ -188,6 +364,18 @@ const formatDate = (dateString) => {
                                 class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                             >
                                 Apply Filters
+                            </button>
+                            <button 
+                                @click="downloadCSV"
+                                class="px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                            >
+                                Export CSV
+                            </button>
+                            <button 
+                                @click="downloadPDF"
+                                class="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            >
+                                Export PDF
                             </button>
                         </div>
                     </div>
@@ -266,7 +454,9 @@ const formatDate = (dateString) => {
                             </div>
                             
                             <div v-else class="h-64">
-                                <canvas id="categoryPieChart"></canvas>
+                                <div class="flex items-center justify-center h-full">
+                                    <canvas id="categoryPieChart"></canvas>
+                                </div>
                             </div>
                         </div>
                     </div>
