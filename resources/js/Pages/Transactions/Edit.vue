@@ -18,7 +18,7 @@ const form = useForm({
     transaction_category_id: props.transaction.transaction_category_id,
     type: props.transaction.type,
     amount: props.transaction.amount,
-    transaction_date: props.transaction.transaction_date,
+    transaction_date: props.transaction.transaction_date.substring(0, 10),
     reference_number: props.transaction.reference_number,
     description: props.transaction.description,
     attachment: null // We don't pre-fill the attachment
