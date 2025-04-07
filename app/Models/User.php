@@ -66,4 +66,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(TransactionCategory::class);
     }
+    
+    /**
+     * Get the budgets for the user.
+     */
+    public function budgets()
+    {
+        return $this->hasMany(Budget::class);
+    }
 }

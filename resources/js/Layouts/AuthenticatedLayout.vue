@@ -41,6 +41,12 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('categories.index')" :active="route().current('categories.*')">
                                     Categories
                                 </NavLink>
+                                <NavLink :href="route('budgets.index')" :active="route().current('budgets.*')">
+                                    Budgets
+                                </NavLink>
+                                <NavLink :href="route('budget-reports.index')" :active="route().current('budget-reports.*')">
+                                    Budget Reports
+                                </NavLink>
                                 <NavLink :href="route('reports')" :active="route().current('reports')">
                                     Reports
                                 </NavLink>
@@ -135,6 +141,12 @@ const showingNavigationDropdown = ref(false);
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('categories.index')" :active="route().current('categories.*')">
                             Categories
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('budgets.index')" :active="route().current('budgets.*')">
+                            Budgets
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('budget-reports.index')" :active="route().current('budget-reports.*')">
+                            Budget Reports
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('reports')" :active="route().current('reports')">
                             Reports

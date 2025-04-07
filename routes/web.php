@@ -5,6 +5,8 @@ use App\Http\Controllers\CashAccountController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\TransactionCategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\BudgetReportController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -47,6 +49,14 @@ Route::middleware('auth')->group(function () {
     
     // Reports Route
     Route::get('/reports', [DashboardController::class, 'reports'])->name('reports');
+    
+    // Budget Routes
+    Route::resource('budgets', BudgetController::class);
+    
+    // Budget Reports Routes
+    Route::get('/budget-reports', [BudgetReportController::class, 'index'])->name('budget-reports.index');
+    Route::get('/budget-reports/{budget}', [BudgetReportController::class, 'show'])->name('budget-reports.show');
+    Route::get('/budget-reports/{budget}/pdf', [BudgetReportController::class, 'generatePdf'])->name('budget-reports.pdf');
 });
 
 require __DIR__.'/auth.php';
