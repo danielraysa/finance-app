@@ -6,7 +6,7 @@ import TextInput from '@/Components/TextInput.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import InputError from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import Checkbox from '@/Components/Checkbox.vue';
+import TextArea from '@/Components/TextArea.vue';
 
 const props = defineProps({
     cashAccounts: Array,
@@ -170,12 +170,7 @@ const submit = () => {
                                 <!-- Description -->
                                 <div class="mb-6">
                                     <InputLabel for="description" value="Description (Optional)" />
-                                    <textarea
-                                        id="description"
-                                        class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                                        v-model="form.description"
-                                        rows="3"
-                                    ></textarea>
+                                    <TextArea id="description" v-model="form.description" rows="3" />
                                     <InputError class="mt-2" :message="form.errors.description" />
                                 </div>
 
