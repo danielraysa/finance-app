@@ -23,7 +23,7 @@ class CashAccountPolicy
      */
     public function view(User $user, CashAccount $cashAccount): bool
     {
-        return $user->id === $cashAccount->user_id;
+        return $user->id == $cashAccount->user_id;
     }
 
     /**
@@ -39,7 +39,7 @@ class CashAccountPolicy
      */
     public function update(User $user, CashAccount $cashAccount): bool
     {
-        return $user->id === $cashAccount->user_id;
+        return $user->id == $cashAccount->user_id;
     }
 
     /**
@@ -47,6 +47,6 @@ class CashAccountPolicy
      */
     public function delete(User $user, CashAccount $cashAccount): bool
     {
-        return $user->id === $cashAccount->user_id;
+        return $user->id == $cashAccount->user_id;
     }
 }

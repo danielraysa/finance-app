@@ -23,7 +23,7 @@ class TransactionCategoryPolicy
      */
     public function view(User $user, TransactionCategory $category): bool
     {
-        return $user->id === $category->user_id;
+        return $user->id == $category->user_id;
     }
 
     /**
@@ -39,7 +39,7 @@ class TransactionCategoryPolicy
      */
     public function update(User $user, TransactionCategory $category): bool
     {
-        return $user->id === $category->user_id;
+        return $user->id == $category->user_id;
     }
 
     /**
@@ -47,6 +47,6 @@ class TransactionCategoryPolicy
      */
     public function delete(User $user, TransactionCategory $category): bool
     {
-        return $user->id === $category->user_id;
+        return $user->id == $category->user_id;
     }
 }
