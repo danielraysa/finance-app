@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Budget Report - {{ $budget->name }}</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color: #222; font-size: 12px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+        h1 { font-size: 18px; margin: 0 0 4px 0; }
+        p { margin: 0; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .table th, .table td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
+        .table thead th { background: #f9fafb; font-weight: 600; }
+        .summary { margin-top: 8px; }
+        .progress { background: #f3f4f6; border-radius: 6px; height: 12px; width: 100%; overflow: hidden; }
+        .progress > .bar { height: 12px; background: #4f46e5; display: block; }
+        .color-dot { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; vertical-align:middle }
+        .footer { margin-top: 22px; color: #6b7280; font-size: 11px; }
+        @media print { .header .actions { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>Budget Report: {{ $budget->name }}</h1>
+            <p>{{ \Carbon\Carbon::parse($budget->start_date)->format('Y-m-d') }} &ndash; {{ \Carbon\Carbon::parse($budget->end_date)->format('Y-m-d') }}</p>
+            @if(!empty($budget->description))
+                <p style="margin-top:6px">{{ $budget->description }}</p>
+            @endif
+        </div>
+
+        <div style="text-align:right">
+            <p>{{ $budget->user->name ?? '' }}</p>
+            <p style="margin-top:6px">Generated: {{ \Carbon\Carbon::now()->format('Y-m-d') }}</p>
+        </div>
+    </div>
+
+    <div class="summary">
+        <table class="table">
+            <tr>
+                <th>Total Planned</th>
+                <td>{{ 'IDR ' . number_format($totalPlanned ?? 0, 0, ',', '.') }}</td>
+                <th>Total Actual</th>
+                <td>{{ 'IDR ' . number_format($totalActual ?? 0, 0, ',', '.') }}</td>
+            </tr>
+            <tr>
+                <th>Progress</th>
+                <td colspan="3">
+                    <div class="progress" style="margin-bottom:6px">
+                        <span class="bar" style="width: {{ $progressPercentage ?? 0 }}%"></span>
+                    </div>
+                    <div>{{ $progressPercentage ?? 0 }}% &middot; Days remaining: {{ $daysRemaining ?? 0 }}</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <h2 style="margin-top:18px; font-size:14px;">Category Breakdown</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Type</th>
+                <th>Planned</th>
+                <th>Actual</th>
+                <th>% Used</th>
+                <th>Remaining</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($categoryBreakdown as $item)
+                <tr>
+                    <td>
+                        <span class="color-dot" style="background: {{ $item['category_color'] ?? '#cccccc' }}"></span>
+                        {{ $item['category_name'] ?? '—' }}
+                    </td>
+                    <td>{{ $item['category_type'] ?? '—' }}</td>
+                    <td>{{ 'IDR ' . number_format($item['planned_amount'] ?? 0, 0, ',', '.') }}</td>
+                    <td>{{ 'IDR ' . number_format($item['actual_amount'] ?? 0, 0, ',', '.') }}</td>
+                    <td>{{ $item['percentage_used'] ?? $item['percentage'] ?? 0 }}%</td>
+                    <td>{{ 'IDR ' . number_format($item['remaining_amount'] ?? (($item['planned_amount'] ?? 0) - ($item['actual_amount'] ?? 0)), 0, ',', '.') }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+    @if(!empty($budget->budgetItems) && count($budget->budgetItems) > 0)
+        <h2 style="margin-top:18px; font-size:14px;">Budget Items</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Planned</th>
+                    <th>Actual</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($budget->budgetItems as $item)
+                    <tr>
+                        <td>{{ $item->category->name ?? '—' }}</td>
+                        <td>{{ 'IDR ' . number_format($item->planned_amount ?? 0, 0, ',', '.') }}</td>
+                        <td>{{ 'IDR ' . number_format($item->actual_amount ?? 0, 0, ',', '.') }}</td>
+                        <td>{{ $item->notes ?? '' }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @endif
+
+    <div class="footer">
+        <small>Generated by Finance App</small>
+    </div>
+</body>
+</html>

@@ -11,6 +11,12 @@ const props = defineProps({
     topSpendingCategories: Array,
 });
 
+// Open PDF in a new tab using a full navigation (bypasses Inertia)
+const openPdf = (id) => {
+    const url = route('budget-reports.pdf', id);
+    window.open(url, '_blank', 'noopener,noreferrer');
+};
+
 // Format date to a more readable format
 const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -33,9 +39,9 @@ const formatCurrency = (amount) => {
             <div class="flex justify-between">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">Budget Report</h2>
                 <div class="flex space-x-2">
-                    <Link :href="route('budget-reports.pdf', budget.id)" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
+                    <button @click.prevent="openPdf(budget.id)" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
                         Download PDF
-                    </Link>
+                    </button>
                     <Link :href="route('budgets.show', budget.id)" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
                         View Budget
                     </Link>
