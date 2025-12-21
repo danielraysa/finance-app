@@ -28,14 +28,48 @@ const showingNavigationDropdown = ref(false);
                             </div>
 
                             <!-- Navigation Links -->
-                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex items-bottom">
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     Dashboard
                                 </NavLink>
+                                <!-- create navlink dropdown for master cash accounts, categories, budgets -->
+                                <Dropdown align="left" width="48" :active="route().current('cash-accounts.*') || route().current('categories.*') || route().current('budgets.*')">
+                                    <template #trigger>
+                                        <span class="inline-flex rounded-md">
+                                            <button
+                                                type="button"
+                                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
+                                            >
+                                                Master Data
+                                                <svg
+                                                    class="ms-2 -me-0.5 h-4 w-4"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                >
+                                                    <path
+                                                        fill-rule="evenodd"
+                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                        clip-rule="evenodd"
+                                                    />
+                                                </svg>
+                                            </button>
+                                        </span>
+                                    </template>
+
+                                    <template #content>
+                                        <DropdownLink :href="route('cash-accounts.index')"> Cash Accounts </DropdownLink>
+                                        <DropdownLink :href="route('categories.index')"> Categories </DropdownLink>
+                                        <DropdownLink :href="route('budgets.index')"> Budgets </DropdownLink>
+                                    </template>
+                                </Dropdown>
                                 <NavLink :href="route('cash-accounts.index')" :active="route().current('cash-accounts.*')">
                                     Cash Accounts
                                 </NavLink>
-                                <NavLink :href="route('transactions.index')" :active="route().current('transactions.*')">
+                                <NavLink :href="route('cash-flows.index')" :active="route().current('cash-flows.*')">
+                                    Cash Flows
+                                </NavLink>
+                                <!-- <NavLink :href="route('transactions.index')" :active="route().current('transactions.*')">
                                     Transactions
                                 </NavLink>
                                 <NavLink :href="route('categories.index')" :active="route().current('categories.*')">
@@ -43,13 +77,41 @@ const showingNavigationDropdown = ref(false);
                                 </NavLink>
                                 <NavLink :href="route('budgets.index')" :active="route().current('budgets.*')">
                                     Budgets
-                                </NavLink>
-                                <NavLink :href="route('budget-reports.index')" :active="route().current('budget-reports.*')">
+                                </NavLink> -->
+                                <Dropdown class="bottom-0 h-full" align="left" width="48">
+                                    <template #trigger>
+                                        <span class="inline-flex rounded-md">
+                                            <button
+                                                type="button"
+                                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
+                                            > Reports
+                                                <svg
+                                                    class="ms-2 -me-0.5 h-4 w-4"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                >
+                                                    <path
+                                                        fill-rule="evenodd"
+                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                        clip-rule="evenodd"
+                                                    />
+                                                </svg>
+                                            </button>
+                                        </span>
+                                    </template>
+
+                                    <template #content>
+                                        <DropdownLink :href="route('reports')"> Overall </DropdownLink>
+                                        <DropdownLink :href="route('budget-reports.index')"> Budget Reports </DropdownLink>
+                                    </template>
+                                </Dropdown>
+                                <!-- <NavLink :href="route('budget-reports.index')" :active="route().current('budget-reports.*')">
                                     Budget Reports
                                 </NavLink>
                                 <NavLink :href="route('reports')" :active="route().current('reports')">
                                     Reports
-                                </NavLink>
+                                </NavLink> -->
                             </div>
                         </div>
 

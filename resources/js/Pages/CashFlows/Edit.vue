@@ -58,30 +58,32 @@ const submit = () => {
         </template>
 
         <div class="py-12">
-            <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+            <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
                         <form @submit.prevent="submit">
-                            <div class="mb-6">
-                                <InputLabel for="transaction_date" value="Transaction Date" />
-                                <TextInput id="transaction_date" type="date" class="mt-1 block w-full" v-model="form.transaction_date" required />
-                                <InputError class="mt-2" :message="form.errors.transaction_date" />
-                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="mb-6">
+                                    <InputLabel for="transaction_date" value="Transaction Date" />
+                                    <TextInput id="transaction_date" type="date" class="mt-1 block w-full" v-model="form.transaction_date" required />
+                                    <InputError class="mt-2" :message="form.errors.transaction_date" />
+                                </div>
 
-                            <div class="mb-6">
-                                <InputLabel for="reference_number" value="Reference Number (Optional)" />
-                                <TextInput id="reference_number" type="text" class="mt-1 block w-full" v-model="form.reference_number" />
-                            </div>
+                                <div class="mb-6">
+                                    <InputLabel for="reference_number" value="Reference Number (Optional)" />
+                                    <TextInput id="reference_number" type="text" class="mt-1 block w-full" v-model="form.reference_number" />
+                                </div>
 
-                            <div class="mb-6">
-                                <InputLabel for="description" value="Description (Optional)" />
-                                <TextArea id="description" v-model="form.description" rows="2" />
-                            </div>
+                                <div class="mb-6">
+                                    <InputLabel for="description" value="Description (Optional)" />
+                                    <TextArea id="description" v-model="form.description" rows="2" />
+                                </div>
 
-                            <div class="mb-6">
-                                <InputLabel for="attachment" value="Attachment (Optional)" />
-                                <input id="attachment" type="file" class="mt-1 block w-full text-gray-700" @input="form.attachment = $event.target.files[0]" />
-                                <p v-if="props.cashFlow && props.cashFlow.attachment" class="mt-2 text-sm text-gray-500">Current attachment: {{ props.cashFlow.attachment.split('/').pop() }}</p>
+                                <div class="mb-6">
+                                    <InputLabel for="attachment" value="Attachment (Optional)" />
+                                    <input id="attachment" type="file" class="mt-1 block w-full text-gray-700" @input="form.attachment = $event.target.files[0]" />
+                                    <p v-if="props.cashFlow && props.cashFlow.attachment" class="mt-2 text-sm text-gray-500">Current attachment: {{ props.cashFlow.attachment.split('/').pop() }}</p>
+                                </div>
                             </div>
 
                             <div class="mb-4">
