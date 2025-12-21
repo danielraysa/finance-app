@@ -7,6 +7,7 @@ use App\Http\Controllers\TransactionCategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\BudgetReportController;
+use App\Http\Controllers\CashFlowController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -37,22 +38,25 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
+
     // Cash Accounts Routes
     Route::resource('cash-accounts', CashAccountController::class);
-    
+
     // Transaction Categories Routes
     Route::resource('categories', TransactionCategoryController::class);
-    
+
     // Transactions Routes
     Route::resource('transactions', TransactionController::class);
-    
+
+    // Cash Flows Routes
+    Route::resource('cash-flows', CashFlowController::class);
+
     // Reports Route
     Route::get('/reports', [DashboardController::class, 'reports'])->name('reports');
-    
+
     // Budget Routes
     Route::resource('budgets', BudgetController::class);
-    
+
     // Budget Reports Routes
     Route::get('/budget-reports', [BudgetReportController::class, 'index'])->name('budget-reports.index');
     Route::get('/budget-reports/{budget}', [BudgetReportController::class, 'show'])->name('budget-reports.show');

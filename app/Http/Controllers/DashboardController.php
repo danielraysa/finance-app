@@ -18,27 +18,24 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
+
+        // Get cash accounts
+        $cashAccounts = CashAccount::all();
         // Get summary data
-        $totalCashBalance = $user->cashAccounts()->sum('current_balance');
-        $totalIncome = $user->transactions()->where('type', 'income')->sum('amount');
-        $totalExpense = $user->transactions()->where('type', 'expense')->sum('amount');
-        
+        $totalCashBalance = $cashAccounts->sum('current_balance');
+        $totalIncome = Transaction::where('type', 'income')->sum('amount');
+        $totalExpense = Transaction::where('type', 'expense')->sum('amount');
+
         // Get recent transactions
-        $recentTransactions = $user->transactions()
-            ->with(['cashAccount', 'category'])
+        $recentTransactions = Transaction::with(['cashAccount', 'category'])
             ->latest('transaction_date')
             ->take(5)
             ->get();
-            
-        // Get cash accounts
-        $cashAccounts = $user->cashAccounts()->get();
-        
+
         // Get monthly income and expense for the last 6 months
         $sixMonthsAgo = Carbon::now()->subMonths(5)->startOfMonth();
-        
-        $monthlyStats = $user->transactions()
-            ->select(
+
+        $monthlyStats = Transaction::select(
                 DB::raw('YEAR(transaction_date) as year'),
                 DB::raw('MONTH(transaction_date) as month'),
                 DB::raw('SUM(CASE WHEN type = "income" THEN amount ELSE 0 END) as income'),
@@ -49,19 +46,19 @@ class DashboardController extends Controller
             ->orderBy('year')
             ->orderBy('month')
             ->get();
-            
+
         // Format the monthly stats for the chart
         $chartLabels = [];
         $incomeData = [];
         $expenseData = [];
-        
+
         foreach ($monthlyStats as $stat) {
             $date = Carbon::createFromDate($stat->year, $stat->month, 1);
             $chartLabels[] = $date->format('M Y');
             $incomeData[] = $stat->income;
             $expenseData[] = $stat->expense;
         }
-        
+
         return Inertia::render('Dashboard', [
             'summary' => [
                 'totalCashBalance' => $totalCashBalance,
@@ -78,40 +75,39 @@ class DashboardController extends Controller
             ]
         ]);
     }
-    
+
     /**
      * Display the financial reports.
      */
     public function reports(Request $request)
     {
         $user = Auth::user();
-        
+
         // Get filter parameters
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
         $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->format('Y-m-d'));
         $cashAccountId = $request->input('cash_account_id');
         $type = $request->input('type');
-        
+
         // Build the query
-        $query = $user->transactions()
-            ->with(['cashAccount', 'category'])
+        $query = Transaction::with(['cashAccount', 'category'])
             ->whereBetween('transaction_date', [$startDate, $endDate])
             ->latest('transaction_date');
-            
+
         if ($cashAccountId) {
             $query->where('cash_account_id', $cashAccountId);
         }
-        
+
         if ($type) {
             $query->where('type', $type);
         }
-        
+
         $transactions = $query->get();
-        
+
         // Calculate totals
         $totalIncome = $transactions->where('type', 'income')->sum('amount');
         $totalExpense = $transactions->where('type', 'expense')->sum('amount');
-        
+
         // Get category breakdown
         $categoryBreakdown = $transactions
             ->groupBy('transaction_category_id')
@@ -125,10 +121,10 @@ class DashboardController extends Controller
             })
             ->sortByDesc('total')
             ->values();
-            
+
         // Get cash accounts for the filter
-        $cashAccounts = $user->cashAccounts()->get();
-        
+        $cashAccounts = CashAccount::all();
+
         return Inertia::render('Reports', [
             'filters' => [
                 'startDate' => $startDate,

@@ -1,0 +1,89 @@
+<script setup>
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { Head, Link } from '@inertiajs/vue3';
+
+const props = defineProps({
+    cashFlows: Object
+});
+
+const formatCurrency = (value) => {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value);
+};
+
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+};
+</script>
+
+<template>
+    <Head title="Cash Flows" />
+
+    <AuthenticatedLayout>
+        <template #header>
+            <div class="flex justify-between items-center">
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">Cash Flows</h2>
+                <Link :href="route('cash-flows.create')" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700">Add Cash Flow</Link>
+            </div>
+        </template>
+
+        <div class="py-12">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        <div v-if="cashFlows.data.length === 0" class="text-center py-8">
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">No Cash Flows Found</h3>
+                            <p class="text-gray-500 mb-4">You haven't recorded any cash flows yet.</p>
+                            <Link :href="route('cash-flows.create')" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700">Record Your First Cash Flow</Link>
+                        </div>
+
+                        <div v-else>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr v-for="cashFlow in cashFlows.data" :key="cashFlow.id">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatDate(cashFlow.transaction_date) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ cashFlow.reference_number || '-' }}</td>
+                                            <td class="px-6 py-4 text-sm text-gray-900">{{ cashFlow.description || '-' }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ formatCurrency(cashFlow.transactions_sum_amount || 0) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <Link :href="route('cash-flows.show', cashFlow.id)" class="text-indigo-600 hover:text-indigo-900 mr-3">View</Link>
+                                                <Link :href="route('cash-flows.edit', cashFlow.id)" class="text-indigo-600 hover:text-indigo-900">Edit</Link>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="mt-6" v-if="cashFlows.links.length > 3">
+                                <div class="flex justify-between items-center">
+                                    <div class="text-sm text-gray-700">Showing {{ cashFlows.from }} to {{ cashFlows.to }} of {{ cashFlows.total }} cash flows</div>
+                                    <div class="flex space-x-1">
+                                        <Link v-for="(link, i) in cashFlows.links" :key="i" v-html="link.label" :href="link.url" :class="[
+                                            'px-4 py-2 text-sm rounded-md',
+                                            {
+                                                'bg-indigo-600 text-white': link.active,
+                                                'bg-white text-gray-700 hover:bg-gray-50': !link.active && link.url,
+                                                'bg-gray-100 text-gray-500 cursor-not-allowed': !link.url
+                                            }
+                                        ]" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </AuthenticatedLayout>
+</template>

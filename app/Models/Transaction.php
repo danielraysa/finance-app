@@ -10,7 +10,7 @@ class Transaction extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
+        'cash_flow_id',
         'cash_account_id',
         'transaction_category_id',
         'type',
@@ -27,11 +27,13 @@ class Transaction extends Model
     ];
 
     /**
-     * Get the user that owns the transaction.
+     * Get the cash flow that owns the transaction
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function user()
+    public function cashFlow()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(CashFlow::class, 'cash_flow_id');
     }
 
     /**
