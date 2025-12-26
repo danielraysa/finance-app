@@ -16,7 +16,7 @@ const showingNavigationDropdown = ref(false);
             <nav class="bg-white border-b border-gray-100">
                 <!-- Primary Navigation Menu -->
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="flex justify-between h-16">
+                    <div class="flex justify-between items-center h-16">
                         <div class="flex">
                             <!-- Logo -->
                             <div class="shrink-0 flex items-center">
@@ -33,7 +33,7 @@ const showingNavigationDropdown = ref(false);
                                     Dashboard
                                 </NavLink>
                                 <!-- create navlink dropdown for master cash accounts, categories, budgets -->
-                                <Dropdown align="left" width="48" :active="route().current('cash-accounts.*') || route().current('categories.*') || route().current('budgets.*')">
+                                <Dropdown class="pt-1" align="left" width="48" :active="route().current('cash-accounts.*') || route().current('categories.*') || route().current('budgets.*')">
                                     <template #trigger>
                                         <span class="inline-flex rounded-md">
                                             <button
@@ -78,7 +78,7 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('budgets.index')" :active="route().current('budgets.*')">
                                     Budgets
                                 </NavLink> -->
-                                <Dropdown class="bottom-0 h-full" align="left" width="48">
+                                <Dropdown class="pt-1" align="left" width="48">
                                     <template #trigger>
                                         <span class="inline-flex rounded-md">
                                             <button
