@@ -13,29 +13,43 @@ const props = defineProps({
     categories: Array
 });
 
-const form = useForm({
+const newDetail = () => ({
     cash_account_id: '',
     transaction_category_id: '',
     type: 'expense',
     amount: '',
+    reference_number: '',
+    description: ''
+});
+
+const form = useForm({
     transaction_date: new Date().toISOString().substr(0, 10),
     reference_number: '',
     description: '',
-    attachment: ''
+    attachment: '',
+    transactions: [ newDetail() ]
 });
 
-const filteredCategories = ref([]);
-
-const updateCategoryOptions = (type) => {
-    filteredCategories.value = props.categories.filter(category => category.type === type);
-    form.transaction_category_id = '';
+const addRow = () => {
+    form.transactions.push(newDetail());
 };
 
-// Initialize filtered categories
-updateCategoryOptions(form.type);
+const removeRow = (index) => {
+    if (form.transactions.length === 1) return;
+    form.transactions.splice(index, 1);
+};
+
+const filteredCategoriesFor = (type) => {
+    return props.categories.filter(category => category.type === type);
+};
 
 const submit = () => {
-    form.post(route('transactions.store'));
+    // If there's a file, submit as FormData
+    if (form.attachment) {
+        form.post(route('transactions.store'), { forceFormData: true });
+    } else {
+        form.post(route('transactions.store'));
+    }
 };
 </script>
 
@@ -57,127 +71,93 @@ const submit = () => {
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
                         <form @submit.prevent="submit">
-                            <div class="max-w-xl mx-auto">
-                                <!-- Transaction Type -->
-                                <div class="mb-6">
-                                    <InputLabel value="Transaction Type" />
-                                    <div class="mt-2 flex space-x-4">
-                                        <label class="inline-flex items-center">
-                                            <input 
-                                                type="radio" 
-                                                class="form-radio text-indigo-600" 
-                                                name="type" 
-                                                value="income" 
-                                                v-model="form.type"
-                                                @change="updateCategoryOptions('income')"
-                                            />
-                                            <span class="ml-2 text-gray-700">Income</span>
-                                        </label>
-                                        <label class="inline-flex items-center">
-                                            <input 
-                                                type="radio" 
-                                                class="form-radio text-indigo-600" 
-                                                name="type" 
-                                                value="expense" 
-                                                v-model="form.type"
-                                                @change="updateCategoryOptions('expense')"
-                                            />
-                                            <span class="ml-2 text-gray-700">Expense</span>
-                                        </label>
+                            <div class="max-w-3xl mx-auto">
+                                <!-- Master fields -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                                    <div>
+                                        <InputLabel for="transaction_date" value="Transaction Date" />
+                                        <TextInput id="transaction_date" type="date" class="mt-1 block w-full" v-model="form.transaction_date" required />
+                                        <InputError class="mt-2" :message="form.errors.transaction_date" />
                                     </div>
-                                    <InputError class="mt-2" :message="form.errors.type" />
-                                </div>
-
-                                <!-- Cash Account -->
-                                <div class="mb-6">
-                                    <InputLabel for="cash_account_id" value="Cash Account" />
-                                    <select
-                                        id="cash_account_id"
-                                        class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                                        v-model="form.cash_account_id"
-                                        required
-                                    >
-                                        <option value="" disabled>Select a cash account</option>
-                                        <option v-for="account in cashAccounts" :key="account.id" :value="account.id">
-                                            {{ account.name }} ({{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(account.current_balance) }})
-                                        </option>
-                                    </select>
-                                    <InputError class="mt-2" :message="form.errors.cash_account_id" />
-                                </div>
-
-                                <!-- Transaction Category -->
-                                <div class="mb-6">
-                                    <InputLabel for="transaction_category_id" value="Category" />
-                                    <select
-                                        id="transaction_category_id"
-                                        class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                                        v-model="form.transaction_category_id"
-                                        required
-                                    >
-                                        <option value="" disabled>Select a category</option>
-                                        <option v-for="category in filteredCategories" :key="category.id" :value="category.id">
-                                            {{ category.name }}
-                                        </option>
-                                    </select>
-                                    <InputError class="mt-2" :message="form.errors.transaction_category_id" />
-                                    <div v-if="filteredCategories.length === 0" class="mt-2 text-sm text-red-600">
-                                        No categories found for {{ form.type }}. Please create a category first.
-                                        <Link :href="route('categories.create')" class="text-indigo-600 hover:text-indigo-800 ml-1">
-                                            Create category
-                                        </Link>
+                                    <div>
+                                        <InputLabel for="reference_number" value="Reference Number (Optional)" />
+                                        <TextInput id="reference_number" type="text" class="mt-1 block w-full" v-model="form.reference_number" />
+                                        <InputError class="mt-2" :message="form.errors.reference_number" />
                                     </div>
                                 </div>
 
-                                <!-- Amount -->
-                                <div class="mb-6">
-                                    <InputLabel for="amount" value="Amount" />
-                                    <TextInput
-                                        id="amount"
-                                        type="number"
-                                        step="0.01"
-                                        class="mt-1 block w-full"
-                                        v-model="form.amount"
-                                        required
-                                    />
-                                    <InputError class="mt-2" :message="form.errors.amount" />
-                                </div>
-
-                                <!-- Transaction Date -->
-                                <div class="mb-6">
-                                    <InputLabel for="transaction_date" value="Transaction Date" />
-                                    <TextInput
-                                        id="transaction_date"
-                                        type="date"
-                                        class="mt-1 block w-full"
-                                        v-model="form.transaction_date"
-                                        required
-                                    />
-                                    <InputError class="mt-2" :message="form.errors.transaction_date" />
-                                </div>
-
-                                <!-- Reference Number -->
-                                <div class="mb-6">
-                                    <InputLabel for="reference_number" value="Reference Number (Optional)" />
-                                    <TextInput
-                                        id="reference_number"
-                                        type="text"
-                                        class="mt-1 block w-full"
-                                        v-model="form.reference_number"
-                                    />
-                                    <InputError class="mt-2" :message="form.errors.reference_number" />
-                                </div>
-
-                                <!-- Description -->
                                 <div class="mb-6">
                                     <InputLabel for="description" value="Description (Optional)" />
-                                    <TextArea id="description" v-model="form.description" rows="3" />
-                                    <InputError class="mt-2" :message="form.errors.description" />
+                                    <TextArea id="description" v-model="form.description" rows="2" />
+                                </div>
+
+                                <div class="mb-6">
+                                    <InputLabel for="attachment" value="Attachment (Optional)" />
+                                    <input id="attachment" type="file" class="mt-1 block w-full text-gray-700" @input="form.attachment = $event.target.files[0]" />
+                                </div>
+
+                                <!-- Details table -->
+                                <div class="mb-4">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <h3 class="font-medium">Transaction Details</h3>
+                                        <button type="button" @click="addRow" class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm">Add Row</button>
+                                    </div>
+
+                                    <div class="space-y-4">
+                                        <div v-for="(detail, idx) in form.transactions" :key="idx" class="p-4 border rounded-md">
+                                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                                <div>
+                                                    <InputLabel value="Type" />
+                                                    <div class="mt-2 flex space-x-2">
+                                                        <label class="inline-flex items-center">
+                                                            <input type="radio" class="form-radio text-indigo-600" :name="`type-${idx}`" value="income" v-model="detail.type" />
+                                                            <span class="ml-2 text-gray-700">Income</span>
+                                                        </label>
+                                                        <label class="inline-flex items-center">
+                                                            <input type="radio" class="form-radio text-indigo-600" :name="`type-${idx}`" value="expense" v-model="detail.type" />
+                                                            <span class="ml-2 text-gray-700">Expense</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <InputLabel value="Cash Account" />
+                                                    <select class="mt-1 block w-full border-gray-300 rounded-md" v-model="detail.cash_account_id" required>
+                                                        <option value="" disabled>Select account</option>
+                                                        <option v-for="account in cashAccounts" :key="account.id" :value="account.id">{{ account.name }}</option>
+                                                    </select>
+                                                </div>
+
+                                                <div>
+                                                    <InputLabel value="Category" />
+                                                    <select class="mt-1 block w-full border-gray-300 rounded-md" v-model="detail.transaction_category_id" required>
+                                                        <option value="" disabled>Select category</option>
+                                                        <option v-for="cat in filteredCategoriesFor(detail.type)" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                                                    </select>
+                                                </div>
+
+                                                <div>
+                                                    <InputLabel value="Amount" />
+                                                    <TextInput type="number" step="0.01" class="mt-1 block w-full" v-model="detail.amount" required />
+                                                </div>
+                                            </div>
+
+                                            <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <InputLabel value="Reference (Optional)" />
+                                                    <TextInput type="text" class="mt-1 block w-full" v-model="detail.reference_number" />
+                                                </div>
+                                                <div class="flex items-end justify-end">
+                                                    <button type="button" @click="removeRow(idx)" class="px-3 py-1 bg-red-600 text-white rounded-md text-sm">Remove</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="flex items-center justify-end mt-8">
-                                    <PrimaryButton class="ml-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                                        Record Transaction
-                                    </PrimaryButton>
+                                    <Link :href="route('transactions.index')" class="px-4 py-2 bg-gray-300 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-400">Cancel</Link>
+                                     <PrimaryButton class="ml-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">Record Transaction</PrimaryButton>
                                 </div>
                             </div>
                         </form>
