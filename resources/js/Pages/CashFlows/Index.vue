@@ -1,10 +1,25 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 const props = defineProps({
     cashFlows: Object
 });
+
+const search = ref(props.filters?.search || '');
+let searchTimeout = null;
+const submitSearch = () => {
+    const params = new URLSearchParams();
+    if (search.value) params.append('search', search.value);
+    const url = route('cash-flows.index') + (params.toString() ? ('?' + params.toString()) : '');
+    window.location.href = url;
+};
+
+const debouncedSubmit = () => {
+    if (searchTimeout) clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(submitSearch, 400);
+};
 
 const formatCurrency = (value) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value);
@@ -31,13 +46,19 @@ const formatDate = (dateString) => {
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
-                        <div v-if="cashFlows.data.length === 0" class="text-center py-8">
+                        <div v-if="(cashFlows.data || []).length === 0" class="text-center py-8">
                             <h3 class="text-lg font-medium text-gray-900 mb-2">No Cash Flows Found</h3>
                             <p class="text-gray-500 mb-4">You haven't recorded any cash flows yet.</p>
                             <Link :href="route('cash-flows.create')" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700">Record Your First Cash Flow</Link>
                         </div>
 
                         <div v-else>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-2">
+                                    <input v-model="search" @input="debouncedSubmit" type="text" placeholder="Search reference, description or user" class="px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                                </div>
+                                <div class="text-sm text-gray-500">Results: {{ (cashFlows.data || []).length }}</div>
+                            </div>
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
@@ -64,7 +85,7 @@ const formatDate = (dateString) => {
                                 </table>
                             </div>
 
-                            <div class="mt-6" v-if="cashFlows.links.length > 3">
+                            <div class="mt-6" v-if="!search && cashFlows.links.length > 3">
                                 <div class="flex justify-between items-center">
                                     <div class="text-sm text-gray-700">Showing {{ cashFlows.from }} to {{ cashFlows.to }} of {{ cashFlows.total }} cash flows</div>
                                     <div class="flex space-x-1">

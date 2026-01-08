@@ -23,6 +23,41 @@ const totalAmount = computed(() => {
 const attachmentPath = computed(() => {
     return props.cashFlow.attachment ? `/storage/${props.cashFlow.attachment}` : null;
 });
+
+const printCashFlow = () => {
+    const cf = props.cashFlow || {};
+    const rows = (cf.transactions || []).map(t => `
+        <tr>
+            <td style="padding:8px;border:1px solid #ddd">${t.type}</td>
+            <td style="padding:8px;border:1px solid #ddd">${t.cash_account?.name || '-'}</td>
+            <td style="padding:8px;border:1px solid #ddd">${t.category?.name || 'Uncategorized'}</td>
+            <td style="padding:8px;border:1px solid #ddd">${t.description || '-'}</td>
+            <td style="padding:8px;border:1px solid #ddd;text-align:right">${formatCurrency(t.amount)}</td>
+        </tr>`).join('');
+
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>Cash Flow</title>
+        <style>body{font-family:Arial,Helvetica,sans-serif;padding:20px}h1{font-size:18px}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #ddd;padding:8px}th{background:#f3f4f6;text-align:left}</style>
+        </head><body>
+        <h1>Cash Flow: ${cf.reference_number || ''}</h1>
+        <p>Date: ${formatDate(cf.transaction_date)}</p>
+        <p>Recorded by: ${cf.user?.name || '-'}</p>
+        <p>Description: ${cf.description || '-'}</p>
+        <p>Total: ${formatCurrency(totalAmount.value)}</p>
+        <table>
+            <thead><tr><th>Type</th><th>Account</th><th>Category</th><th>Description</th><th style="text-align:right">Amount</th></tr></thead>
+            <tbody>
+                ${rows}
+            </tbody>
+        </table>
+        </body></html>`;
+
+    const w = window.open('', '_blank');
+    if (!w) return alert('Unable to open print window');
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    setTimeout(() => { w.print(); }, 250);
+};
 </script>
 
 <template>
@@ -33,6 +68,7 @@ const attachmentPath = computed(() => {
             <div class="flex justify-between items-center">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">Cash Flow Details</h2>
                 <div class="flex space-x-2">
+                    <button @click="printCashFlow" class="px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700">Print</button>
                     <Link :href="route('cash-flows.edit', cashFlow.id)" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700">
                         Edit
                     </Link>

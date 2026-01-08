@@ -14,6 +14,32 @@ const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 };
+
+const printTransaction = () => {
+    const t = props.transaction || {};
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>Transaction</title>
+        <style>body{font-family:Arial,Helvetica,sans-serif;padding:20px}h1{font-size:18px}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #ddd;padding:8px}th{background:#f3f4f6;text-align:left}</style>
+        </head><body>
+        <h1>Transaction ${t.reference_number ? '- ' + t.reference_number : ''}</h1>
+        <p>Date: ${formatDate(t.transaction_date)}</p>
+        <table>
+            <tbody>
+                <tr><th style="width:200px">Type</th><td>${t.type}</td></tr>
+                <tr><th>Category</th><td>${t.category?.name || 'Uncategorized'}</td></tr>
+                <tr><th>Account</th><td>${t.cash_account?.name || '-'}</td></tr>
+                <tr><th>Amount</th><td>${formatCurrency(t.amount)}</td></tr>
+                <tr><th>Description</th><td>${t.description || '-'}</td></tr>
+            </tbody>
+        </table>
+        </body></html>`;
+
+    const w = window.open('', '_blank');
+    if (!w) return alert('Unable to open print window');
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    setTimeout(() => { w.print(); }, 250);
+};
 </script>
 
 <template>
@@ -24,6 +50,7 @@ const formatDate = (dateString) => {
             <div class="flex justify-between items-center">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">Transaction Details</h2>
                 <div class="flex space-x-2">
+                    <button @click="printTransaction" class="px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">Print</button>
                     <Link :href="route('transactions.edit', transaction.id)" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                         Edit Transaction
                     </Link>

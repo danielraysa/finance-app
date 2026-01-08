@@ -1,10 +1,26 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 const props = defineProps({
     transactions: Object
 });
+
+const search = ref(props.filters?.search || '');
+const typeFilter = ref(props.filters?.type || 'all');
+let searchTimeout = null;
+const submitSearch = () => {
+    const params = new URLSearchParams();
+    if (search.value) params.append('search', search.value);
+    if (typeFilter.value && typeFilter.value !== 'all') params.append('type', typeFilter.value);
+    const url = route('transactions.index') + (params.toString() ? ('?' + params.toString()) : '');
+    window.location.href = url;
+};
+const debouncedSubmit = () => {
+    if (searchTimeout) clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(submitSearch, 400);
+};
 
 const formatCurrency = (value) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value);
@@ -33,7 +49,7 @@ const formatDate = (dateString) => {
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
-                        <div v-if="transactions.data.length === 0" class="text-center py-8">
+                        <div v-if="(transactions.data || []).length === 0" class="text-center py-8">
                             <h3 class="text-lg font-medium text-gray-900 mb-2">No Transactions Found</h3>
                             <p class="text-gray-500 mb-4">You haven't recorded any transactions yet.</p>
                             <Link :href="route('transactions.create')" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
@@ -42,6 +58,17 @@ const formatDate = (dateString) => {
                         </div>
                         
                         <div v-else>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-2">
+                                    <input v-model="search" @input="debouncedSubmit" type="text" placeholder="Search description, ref, category, account" class="px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                                    <select v-model="typeFilter" @change="debouncedSubmit" class="px-3 py-2 border rounded-md">
+                                        <option value="all">All</option>
+                                        <option value="income">Income</option>
+                                        <option value="expense">Expense</option>
+                                    </select>
+                                </div>
+                                <div class="text-sm text-gray-500">Results: {{ (transactions.data || []).length }}</div>
+                            </div>
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
@@ -56,7 +83,7 @@ const formatDate = (dateString) => {
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
-                                    <tr v-for="transaction in transactions.data" :key="transaction.id">
+                                        <tr v-for="transaction in transactions.data" :key="transaction.id">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ formatDate(transaction.transaction_date) }}
                                         </td>
@@ -90,7 +117,7 @@ const formatDate = (dateString) => {
                             </div>
                             
                             <!-- Pagination -->
-                            <div class="mt-6" v-if="transactions.links.length > 3">
+                            <div class="mt-6" v-if="!search && typeFilter === 'all' && transactions.links.length > 3">
                                 <div class="flex justify-between items-center">
                                     <div class="text-sm text-gray-700">
                                         Showing {{ transactions.from }} to {{ transactions.to }} of {{ transactions.total }} transactions
