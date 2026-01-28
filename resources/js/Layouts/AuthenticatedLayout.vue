@@ -69,15 +69,9 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('cash-flows.index')" :active="route().current('cash-flows.*')">
                                     Cash Flows
                                 </NavLink>
-                                <!-- <NavLink :href="route('transactions.index')" :active="route().current('transactions.*')">
-                                    Transactions
+                                <NavLink :href="route('event-projects.index')" :active="route().current('event-projects.*')">
+                                    Event Projects
                                 </NavLink>
-                                <NavLink :href="route('categories.index')" :active="route().current('categories.*')">
-                                    Categories
-                                </NavLink>
-                                <NavLink :href="route('budgets.index')" :active="route().current('budgets.*')">
-                                    Budgets
-                                </NavLink> -->
                                 <Dropdown class="pt-1" align="left" width="48">
                                     <template #trigger>
                                         <span class="inline-flex rounded-md">

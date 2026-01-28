@@ -11,7 +11,10 @@ const props = defineProps({
     budgetItems: Array,
     cashFlows: Array // optional if you want to link a cash flow
 });
-
+const moneyFormatter = new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR'
+});
 const newDetail = () => ({
     budget_item_id: '',
     allocated_amount: '',
@@ -79,7 +82,7 @@ const submit = () => {
                                     <InputLabel for="status" value="Status" />
                                     <select id="status" v-model="form.status" class="mt-1 block w-full border-gray-300 rounded-md">
                                         <option value="planned">Planned</option>
-                                        <option value="ongoing">Ongoing</option>
+                                        <option value="approved">Approved</option>
                                         <option value="completed">Completed</option>
                                         <option value="cancelled">Cancelled</option>
                                     </select>
@@ -122,7 +125,7 @@ const submit = () => {
                                                 <InputLabel value="Budget Item" />
                                                 <select class="mt-1 block w-full border-gray-300 rounded-md" v-model="detail.budget_item_id" required>
                                                     <option value="" disabled>Select budget item</option>
-                                                    <option v-for="bi in props.budgetItems" :key="bi.id" :value="bi.id">{{ bi.budget.name }} - {{ bi.category.name }} ({{ bi.planned_amount }})</option>
+                                                    <option v-for="bi in props.budgetItems" :key="bi.id" :value="bi.id">{{ bi.budget.name }} - {{ bi.category.name }} ({{ moneyFormatter.format(bi.planned_amount) }})</option>
                                                 </select>
                                             </div>
 
@@ -146,7 +149,7 @@ const submit = () => {
 
                             <div class="flex items-center justify-end mt-8">
                                 <Link :href="route('event-projects.index')" class="px-4 py-2 bg-gray-300 rounded-md text-sm">Cancel</Link>
-                                <PrimaryButton class="ml-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">Create Event Project</PrimaryButton>
+                                <PrimaryButton class="ml-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">Create</PrimaryButton>
                             </div>
                         </form>
                     </div>

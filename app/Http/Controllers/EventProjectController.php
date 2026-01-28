@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\EventProject;
 use App\Models\BudgetItem;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -15,16 +17,48 @@ class EventProjectController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $eventProjects = EventProject::where('user_id', Auth::id())
-            ->with(['details.budgetItem', 'cashFlow'])
+        $query = EventProject::where('user_id', Auth::id())
+            ->with(['details.budgetItem', 'cashFlow']);
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->query('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('event_name', 'like', "%{$search}%")
+                    ->orWhere('location', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('note', 'like', "%{$search}%");
+            });
+        }
+
+        // Status filter
+        if ($request->filled('status')) {
+            $query->where('status', $request->query('status'));
+        }
+
+        // Date range filter
+        if ($request->filled('date_from')) {
+            $query->whereDate('event_date', '>=', $request->query('date_from'));
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('event_date', '<=', $request->query('date_to'));
+        }
+
+        // Sorting
+        $sortBy = $request->query('sort_by', 'event_date');
+        $sortDir = $request->query('sort_dir', 'desc');
+        $query->orderBy($sortBy, $sortDir);
+
+        $eventProjects = $query
             ->withSum('details', 'allocated_amount')
-            ->latest('event_date')
-            ->paginate(10);
+            ->paginate(10)
+            ->appends($request->query());
 
         return Inertia::render('EventProjects/Index', [
             'eventProjects' => $eventProjects,
+            'filters' => $request->query(),
         ]);
     }
 
@@ -117,10 +151,7 @@ class EventProjectController extends Controller
         // $this->authorize('update', $eventProject);
         $user = Auth::user();
 
-        $budgetItems = BudgetItem::whereHas('budget', function ($q) use ($user) {
-            $q->where('user_id', $user->id);
-        })->with('category')->get();
-
+        $budgetItems = BudgetItem::with(['budget','category'])->get();
         $eventProject->load('details');
 
         return Inertia::render('EventProjects/Edit', [
@@ -200,5 +231,23 @@ class EventProjectController extends Controller
 
         return redirect()->route('event-projects.index')
             ->with('success', 'Event project deleted successfully.');
+    }
+
+    /**
+     * Approval event project.
+     */
+    public function approval($id)
+    {
+        DB::transaction(function () use ($id) {
+            $eventProject = EventProject::findOrFail($id);
+            $eventProject->status = 'approved';
+            $eventProject->verified_by = Auth::id();
+            $eventProject->verified_date = now();
+            $eventProject->save();
+            // send notification or email if needed
+            // $user = User::find($eventProject->user_id);
+            // Mail::to($user->email)->send(new MailableClass);
+            // return response()->json(['message' => 'Event project approved successfully.', 'data' => $eventProject]);
+        });
     }
 }
