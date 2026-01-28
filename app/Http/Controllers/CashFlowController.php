@@ -14,23 +14,56 @@ use Inertia\Inertia;
 
 class CashFlowController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $cashFlows = CashFlow::where('user_id', Auth::id())
-            ->with(['transactions.cashAccount', 'transactions.category'])
+        $query = CashFlow::where('user_id', Auth::id())
+            ->with(['transactions.cashAccount', 'transactions.category']);
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->query('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('reference_number', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Date range filter
+        if ($request->filled('date_from')) {
+            $query->whereDate('transaction_date', '>=', $request->query('date_from'));
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('transaction_date', '<=', $request->query('date_to'));
+        }
+
+        // Transaction type filter
+        if ($request->filled('type')) {
+            $type = $request->query('type');
+            $query->whereHas('transactions', function ($q) use ($type) {
+                $q->where('type', $type);
+            });
+        }
+
+        // Sorting
+        $sortBy = $request->query('sort_by', 'transaction_date');
+        $sortDir = $request->query('sort_dir', 'desc');
+        $query->orderBy($sortBy, $sortDir);
+
+        $cashFlows = $query
             ->withSum('transactions', 'amount')
-            ->latest('transaction_date')
-            ->paginate(10);
+            ->paginate(10)
+            ->appends($request->query());
 
         return Inertia::render('CashFlows/Index', [
             'cashFlows' => $cashFlows,
+            'filters' => $request->query(),
         ]);
     }
 
     public function create()
     {
         $cashAccounts = Auth::user()->cashAccounts()->where('is_active', true)->get();
-        $categories = Auth::user()->transactionCategories()->where('is_active', true)->get();
+        $categories = TransactionCategory::where('is_active', true)->get();
 
         return Inertia::render('CashFlows/Create', [
             'cashAccounts' => $cashAccounts,
@@ -111,7 +144,7 @@ class CashFlowController extends Controller
     {
         // $this->authorize('update', $cashFlow);
         $cashAccounts = Auth::user()->cashAccounts()->where('is_active', true)->get();
-        $categories = Auth::user()->transactionCategories()->where('is_active', true)->get();
+        $categories = TransactionCategory::where('is_active', true)->get();
 
         $cashFlow->load('transactions');
 
