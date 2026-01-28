@@ -33,7 +33,7 @@ const showingNavigationDropdown = ref(false);
                                     Dashboard
                                 </NavLink>
                                 <!-- create navlink dropdown for master cash accounts, categories, budgets -->
-                                <Dropdown class="pt-1" align="left" width="48" :active="route().current('cash-accounts.*') || route().current('categories.*') || route().current('budgets.*')">
+                                <Dropdown class="pt-1" align="left" width="48" :active="route().current('cash-accounts.*') || route().current('categories.*') || route().current('budgets.*') || route().current('users.*') || route().current('roles.*')">
                                     <template #trigger>
                                         <span class="inline-flex rounded-md">
                                             <button
@@ -61,6 +61,8 @@ const showingNavigationDropdown = ref(false);
                                         <DropdownLink :href="route('cash-accounts.index')"> Cash Accounts </DropdownLink>
                                         <DropdownLink :href="route('categories.index')"> Categories </DropdownLink>
                                         <DropdownLink :href="route('budgets.index')"> Budgets </DropdownLink>
+                                        <DropdownLink :href="route('users.index')"> Users </DropdownLink>
+                                        <DropdownLink :href="route('roles.index')"> Roles </DropdownLink>
                                     </template>
                                 </Dropdown>
                                 <NavLink :href="route('cash-flows.index')" :active="route().current('cash-flows.*')">
@@ -197,6 +199,12 @@ const showingNavigationDropdown = ref(false);
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('budgets.index')" :active="route().current('budgets.*')">
                             Budgets
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('users.index')" :active="route().current('users.*')">
+                            Users
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('roles.index')" :active="route().current('roles.*')">
+                            Roles
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('cash-flows.index')" :active="route().current('cash-flows.*')">
                             Cash Flows
