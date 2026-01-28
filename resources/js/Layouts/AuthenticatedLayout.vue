@@ -63,9 +63,6 @@ const showingNavigationDropdown = ref(false);
                                         <DropdownLink :href="route('budgets.index')"> Budgets </DropdownLink>
                                     </template>
                                 </Dropdown>
-                                <NavLink :href="route('cash-accounts.index')" :active="route().current('cash-accounts.*')">
-                                    Cash Accounts
-                                </NavLink>
                                 <NavLink :href="route('cash-flows.index')" :active="route().current('cash-flows.*')">
                                     Cash Flows
                                 </NavLink>
@@ -192,14 +189,20 @@ const showingNavigationDropdown = ref(false);
                         <ResponsiveNavLink :href="route('cash-accounts.index')" :active="route().current('cash-accounts.*')">
                             Cash Accounts
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('transactions.index')" :active="route().current('transactions.*')">
+                        <!-- <ResponsiveNavLink :href="route('transactions.index')" :active="route().current('transactions.*')">
                             Transactions
-                        </ResponsiveNavLink>
+                        </ResponsiveNavLink> -->
                         <ResponsiveNavLink :href="route('categories.index')" :active="route().current('categories.*')">
                             Categories
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('budgets.index')" :active="route().current('budgets.*')">
                             Budgets
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('cash-flows.index')" :active="route().current('cash-flows.*')">
+                            Cash Flows
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('event-projects.index')" :active="route().current('event-projects.*')">
+                            Event Projects
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('budget-reports.index')" :active="route().current('budget-reports.*')">
                             Budget Reports
