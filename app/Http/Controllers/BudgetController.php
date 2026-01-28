@@ -41,8 +41,7 @@ class BudgetController extends Controller
      */
     public function create()
     {
-        $categories = auth()->user()->transactionCategories()
-            ->where('is_active', true)
+        $categories = TransactionCategory::where('is_active', true)
             ->orderBy('name')
             ->get();
 
@@ -124,7 +123,7 @@ class BudgetController extends Controller
         // Calculate actual amounts for each budget item based on transactions
         foreach ($budget->budgetItems as $item) {
             $actualAmount = DB::table('transactions')
-                ->where('user_id', auth()->id())
+                // ->where('user_id', auth()->id())
                 ->where('transaction_category_id', $item->transaction_category_id)
                 ->whereBetween('transaction_date', [$budget->start_date, $budget->end_date])
                 ->sum('amount');
@@ -154,8 +153,7 @@ class BudgetController extends Controller
 
         $budget->load('budgetItems');
         
-        $categories = auth()->user()->transactionCategories()
-            ->where('is_active', true)
+        $categories = TransactionCategory::where('is_active', true)
             ->orderBy('name')
             ->get();
 

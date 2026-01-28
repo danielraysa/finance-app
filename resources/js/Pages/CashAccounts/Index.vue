@@ -2,6 +2,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import Pagination from '@/Components/Pagination.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 
 const props = defineProps({
     cashAccounts: Object // Changed from Array to Object to support pagination
@@ -73,8 +75,12 @@ const formatCurrency = (value) => {
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <Link :href="route('cash-accounts.show', account.id)" class="text-indigo-600 hover:text-indigo-900 mr-3">View</Link>
-                                            <Link :href="route('cash-accounts.edit', account.id)" class="text-indigo-600 hover:text-indigo-900">Edit</Link>
+                                            <PrimaryButton class="mr-2">
+                                                <Link :href="route('cash-accounts.show', account.id)">View</Link>
+                                            </PrimaryButton>
+                                            <SecondaryButton>
+                                                <Link :href="route('cash-accounts.edit', account.id)">Edit</Link>
+                                            </SecondaryButton>
                                         </td>
                                     </tr>
                                 </tbody>
