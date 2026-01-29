@@ -21,8 +21,7 @@ class BudgetReportController extends Controller
         $user = $request->user();
 
         // Get active budgets
-        $activeBudgets = $user->budgets()
-            ->where('is_active', true)
+        $activeBudgets = Budget::where('is_active', true)
             ->orderBy('end_date', 'desc')
             ->get();
 
@@ -76,7 +75,7 @@ class BudgetReportController extends Controller
     public function show(Budget $budget)
     {
         // Ensure the user can only view their own budgets
-        $this->authorize('view', $budget);
+        $this->authorize('viewAny', $budget);
 
         // Update actual amounts for the budget
         $this->updateBudgetActualAmounts($budget);
@@ -130,7 +129,7 @@ class BudgetReportController extends Controller
     public function generatePdf(Budget $budget)
     {
         // Ensure the user can only view their own budgets
-        $this->authorize('view', $budget);
+        $this->authorize('viewAny', $budget);
 
         // Update actual amounts for the budget
         $this->updateBudgetActualAmounts($budget);
@@ -171,17 +170,20 @@ class BudgetReportController extends Controller
         if (!$budget) return;
 
         $budget->load('budgetItems');
-        $user = Auth::user();
-        foreach ($budget->budgetItems as $item) {
-            $actualAmount = DB::table('transactions')
-                ->where('user_id', $user->id)
-                ->where('transaction_category_id', $item->transaction_category_id)
-                ->whereBetween('transaction_date', [$budget->start_date, $budget->end_date])
-                ->sum('amount');
+        // $user = Auth::user();
+        DB::transaction(function () use ($budget) {
+            $budget->lockForUpdate();
+            foreach ($budget->budgetItems as $item) {
+                $actualAmount = DB::table('transactions')
+                    // ->where('user_id', $user->id)
+                    ->where('transaction_category_id', $item->transaction_category_id)
+                    ->whereBetween('transaction_date', [$budget->start_date, $budget->end_date])
+                    ->sum('amount');
 
-            $item->actual_amount = $actualAmount;
-            $item->save();
-        }
+                $item->actual_amount = $actualAmount;
+                $item->save();
+            }
+        });
     }
 
     /**
@@ -285,9 +287,7 @@ class BudgetReportController extends Controller
     private function getDailySpendingData(Budget $budget)
     {
         if (!$budget) return [];
-        $user = Auth::user();
-        $transactions = Transaction::where('user_id', $user->id)
-            ->whereBetween('transaction_date', [$budget->start_date, $budget->end_date])
+        $transactions = Transaction::whereBetween('transaction_date', [$budget->start_date, $budget->end_date])
             ->orderBy('transaction_date')
             ->get();
 
