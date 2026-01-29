@@ -136,7 +136,7 @@ class EventProjectController extends Controller
     public function show(EventProject $eventProject)
     {
         // $this->authorize('view', $eventProject);
-        $eventProject->load('details.budgetItem', 'cashFlow', 'user', 'verificator');
+        $eventProject->load('details.budgetItem.budget', 'details.budgetItem.category', 'cashFlow', 'user', 'verificator');
 
         return Inertia::render('EventProjects/Show', [
             'eventProject' => $eventProject,
@@ -183,6 +183,7 @@ class EventProjectController extends Controller
         ]);
 
         DB::transaction(function () use ($request, $validated, $eventProject) {
+            $eventProject->lockForUpdate();
             if ($request->hasFile('attachment')) {
                 if ($eventProject->attachment) {
                     Storage::disk('public')->delete($eventProject->attachment);
@@ -239,11 +240,16 @@ class EventProjectController extends Controller
     public function approval($id)
     {
         DB::transaction(function () use ($id) {
-            $eventProject = EventProject::findOrFail($id);
+            $eventProject = EventProject::with('details')->lockForUpdate()->findOrFail($id);
             $eventProject->status = 'approved';
             $eventProject->verified_by = Auth::id();
             $eventProject->verified_date = now();
             $eventProject->save();
+            foreach ($eventProject->details as $detail) {
+                // Update approved amount to match allocated amount upon approval
+                $detail->approved_amount = $detail->allocated_amount;
+                $detail->save();
+            }
             // send notification or email if needed
             // $user = User::find($eventProject->user_id);
             // Mail::to($user->email)->send(new MailableClass);

@@ -12,10 +12,10 @@ const props = defineProps({
 const formatDate = (dateString) => {
     if (!dateString) return '-';
     const date = new Date(dateString);
-    return date.toLocaleDateString('id-ID', { 
+    return date.toLocaleDateString('id-ID', {
         weekday: 'long',
-        day: 'numeric', 
-        month: 'long', 
+        day: 'numeric',
+        month: 'long',
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
@@ -23,8 +23,8 @@ const formatDate = (dateString) => {
 };
 
 const formatCurrency = (value) => {
-    return new Intl.NumberFormat('id-ID', { 
-        style: 'currency', 
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
         currency: 'IDR',
         minimumFractionDigits: 0
     }).format(value);
@@ -87,7 +87,7 @@ const downloadAttachment = () => {
                                 <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Event Date</label>
                                 <p class="text-lg font-semibold text-gray-900">{{ formatDate(eventProject.event_date) }}</p>
                             </div>
-                            
+
                             <!-- Status -->
                             <div>
                                 <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Status</label>
@@ -95,7 +95,7 @@ const downloadAttachment = () => {
                                     {{ eventProject.status.charAt(0).toUpperCase() + eventProject.status.slice(1) }}
                                 </span>
                             </div>
-                            
+
                             <!-- Location -->
                             <div>
                                 <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Location</label>
@@ -143,7 +143,7 @@ const downloadAttachment = () => {
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                     <div class="p-6 border-b border-gray-200">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Budget Details</h3>
-                        
+
                         <!-- Summary Cards -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                             <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
@@ -165,8 +165,7 @@ const downloadAttachment = () => {
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Budget Item</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Budget Item - Category</th>
                                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Allocated</th>
                                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Approved</th>
                                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Variance</th>
@@ -174,8 +173,7 @@ const downloadAttachment = () => {
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     <tr v-for="detail in eventProject.details" :key="detail.id">
-                                        <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ detail.budget_item?.name || '-' }}</td>
-                                        <td class="px-6 py-4 text-sm text-gray-500">{{ detail.budget_item?.category?.name || '-' }}</td>
+                                        <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ detail.budget_item?.budget?.name || '-' }} [{{ detail.budget_item?.category?.name || '-' }}]</td>
                                         <td class="px-6 py-4 text-sm text-right font-medium text-gray-900">{{ formatCurrency(detail.allocated_amount) }}</td>
                                         <td class="px-6 py-4 text-sm text-right font-medium text-gray-900">{{ formatCurrency(detail.approved_amount) }}</td>
                                         <td class="px-6 py-4 text-sm text-right font-medium" :class="detail.allocated_amount > detail.approved_amount ? 'text-red-600' : 'text-green-600'">
