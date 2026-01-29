@@ -6,6 +6,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import InputError from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextArea from '@/Components/TextArea.vue';
+import { computed } from 'vue';
 
 const props = defineProps({
     eventProject: Object,
@@ -40,14 +41,21 @@ const form = useForm({
     details: initialDetails.length ? initialDetails : [ newDetail() ]
 });
 
+const totalAllocatedAmount = computed(() => {
+    return moneyFormatter.format(form.details.reduce((total, detail) => {
+        const amount = parseFloat(detail.allocated_amount);
+        return total + (isNaN(amount) ? 0 : amount);
+    }, 0).toFixed(2));
+});
+
 const addRow = () => { form.details.push(newDetail()); };
 const removeRow = (index) => { if (form.details.length > 1) form.details.splice(index,1); };
 
 const submit = () => {
     if (form.attachment) {
-        form.post(route('event-projects.update', props.eventProject.id), { forceFormData: true, method: 'patch' });
+        form.put(route('event-projects.update', props.eventProject.id), { forceFormData: true });
     } else {
-        form.post(route('event-projects.update', props.eventProject.id), { method: 'patch' });
+        form.put(route('event-projects.update', props.eventProject.id));
     }
 };
 </script>
@@ -125,7 +133,7 @@ const submit = () => {
                                     <button type="button" @click="addRow" class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm">Add Row</button>
                                 </div>
 
-                                <div class="space-y-4">
+                                <div class="space-y-4 mb-4">
                                     <div v-for="(detail, idx) in form.details" :key="idx" class="p-4 border rounded-md">
                                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             <div>
@@ -151,6 +159,10 @@ const submit = () => {
                                             <button type="button" @click="removeRow(idx)" class="px-3 py-1 bg-red-600 text-white rounded-md text-sm">Remove</button>
                                         </div>
                                     </div>
+                                </div>
+                                <div>
+                                    <InputLabel value="Total Allocated Amount" />
+                                    <TextInput class="mt-1 block w-full" v-model="totalAllocatedAmount" readonly />
                                 </div>
                             </div>
 
