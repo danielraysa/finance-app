@@ -1,0 +1,50 @@
+name: 🚀 Deploy site
+on:
+  push:
+    branches:
+     - fppti-jatim
+jobs:
+  duplicate-files:
+    name: 🔄 Copy files
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2.36.0
+        with:
+          php-version: '8.3'
+
+      - name: Install PHP Dependencies with Composer
+        uses: ramsey/composer-install@v3.1.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install bun
+        uses: oven-sh/setup-bun@v2.1.2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: 🏗️ Build script
+        run: bun run build
+
+      - name: 📂 Sync files
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.ftp_host }}
+          username: ${{ secrets.ftp_username }}
+          password: ${{ secrets.ftp_password }}
+          server-dir: ${{ secrets.ftp_directory_fppti }}
+          timeout: 600000
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/vendor/**
