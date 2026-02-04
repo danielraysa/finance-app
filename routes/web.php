@@ -66,6 +66,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('event-projects', EventProjectController::class);
     Route::post('/event-projects/{id}/approval', [EventProjectController::class, 'approval'])->name('event-projects.approval');
+    Route::post('/event-projects/{id}/generate-cash-flow', [EventProjectController::class, 'generateCashFlow'])->name('event-projects.generate-cash-flow');
 
     // Budget Reports Routes
     Route::get('/budget-reports', [BudgetReportController::class, 'index'])->name('budget-reports.index');

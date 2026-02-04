@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\EventProject;
 use App\Models\BudgetItem;
+use App\Models\CashAccount;
+use App\Models\CashFlow;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -255,5 +257,60 @@ class EventProjectController extends Controller
             // Mail::to($user->email)->send(new MailableClass);
             // return response()->json(['message' => 'Event project approved successfully.', 'data' => $eventProject]);
         });
+    }
+
+    /**
+     * Generate cash flow for the event project.
+     */
+    public function generateCashFlow($id)
+    {
+        DB::transaction(function () use ($id) {
+            $eventProject = EventProject::with('details.budgetItem')->lockForUpdate()->findOrFail($id);
+            if ($eventProject->cash_flow_id) {
+                // Cash flow already generated
+                return;
+            }
+            // Create cash flow logic here
+            $cashFlow = $this->createCashFlowFromEventProject($eventProject);
+            $eventProject->cash_flow_id = $cashFlow->id;
+            $eventProject->save();
+        });
+    }
+
+    public function createCashFlowFromEventProject(EventProject $eventProject)
+    {
+        // generate reference number
+        $now = now();
+        $number = CashFlow::whereYear('created_at', $now->year)->count() + 1;
+        $referenceNumber = str_pad($number, 3, '0', STR_PAD_LEFT) . '/JATIM//'. $now->format('m') . '/' . $now->year;
+
+        // Create a new CashFlow based on the EventProject details
+        $cashFlow = CashFlow::create([
+            'name' => 'Cash Flow for ' . $eventProject->event_name,
+            'description' => 'Generated from Event Project: ' . $eventProject->event_name,
+            'user_id' => $eventProject->user_id,
+            'transaction_date' => $now,
+            'reference_number' => $referenceNumber,
+        ]);
+            
+        $transactions = collect();
+        $cashAccount = CashAccount::where('is_active', true)->first();
+        foreach ($eventProject->details as $detail) {
+            // Create cash flow transactions based on approved amounts
+            $transactions->push([
+                'cash_account_id' => $cashAccount->id,
+                'cash_flow_id' => $cashFlow->id,
+                'transaction_category_id' => $detail->budgetItem->transaction_category_id,
+                'type' => 'expense', // assuming event project expenses
+                'budget_item_id' => $detail->budget_item_id,
+                'transaction_date' => $now,
+                'amount' => $detail->approved_amount,
+                'description' => 'From Event Project: ' . $eventProject->event_name,
+            ]);
+        }
+
+        $cashFlow->transactions()->createMany($transactions);
+
+        return $cashFlow;
     }
 }

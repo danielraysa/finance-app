@@ -1,6 +1,4 @@
 <script setup>
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
@@ -59,6 +57,19 @@ const downloadAttachment = () => {
         window.location.href = `/storage/${props.eventProject.attachment}`;
     }
 };
+
+const generated = ref(false);
+
+const generateCashFlow = (id) => {
+    if (confirm('Generate Cash Flow for this Event Project?')) {
+        generated.value = true;
+        router.post(route('event-projects.generate-cash-flow', id), {}, {
+            onFinish: () => {
+                generated.value = false;
+            }
+        });
+    }
+};
 </script>
 
 <template>
@@ -70,8 +81,13 @@ const downloadAttachment = () => {
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ eventProject.event_name }}</h2>
                 <div class="flex space-x-2">
                     <Link :href="route('event-projects.index')" class="px-4 py-2 bg-gray-600 text-white text-sm rounded-md hover:bg-gray-700">Back to List</Link>
-                    <Link :href="route('event-projects.edit', eventProject.id)" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700">Edit</Link>
-                    <button @click="deleteEventProject" class="px-4 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700">Delete</button>
+                    <Link v-if="!['approved', 'completed'].includes(eventProject.status)" :href="route('event-projects.edit', eventProject.id)" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700">Edit</Link>
+                    <button v-if="!['approved', 'completed'].includes(eventProject.status)" @click="deleteEventProject" class="px-4 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700">Delete</button>
+                    <!-- generate cash flow if approved/completed -->
+                    <Link v-if="['approved', 'completed'].includes(eventProject.status) && !eventProject.cash_flow"  @click="generateCashFlow(eventProject.id)"  :disabled="generated" class="px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700">Generate Cash Flow</Link>
+                    <div v-else-if="eventProject.cash_flow" class="px-4 py-2 bg-green-100 text-green-800 text-sm rounded-md">
+                        Cash Flow Generated
+                    </div>
                 </div>
             </div>
         </template>
