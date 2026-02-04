@@ -75,12 +75,12 @@ const formatCurrency = (value) => {
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <PrimaryButton class="mr-2">
-                                                <Link :href="route('cash-accounts.show', account.id)">View</Link>
-                                            </PrimaryButton>
-                                            <SecondaryButton>
-                                                <Link :href="route('cash-accounts.edit', account.id)">Edit</Link>
-                                            </SecondaryButton>
+                                            <Link :href="route('cash-accounts.show', account.id)">
+                                                <PrimaryButton class="mr-2">View</PrimaryButton>
+                                            </Link>
+                                            <Link :href="route('cash-accounts.edit', account.id)">
+                                                <SecondaryButton>Edit</SecondaryButton>
+                                            </Link>
                                         </td>
                                     </tr>
                                 </tbody>

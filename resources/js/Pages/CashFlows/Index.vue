@@ -159,12 +159,12 @@ const formatDate = (dateString) => {
                                             <td class="px-6 py-4 text-sm text-gray-900">{{ cashFlow.description || '-' }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ formatCurrency(cashFlow.transactions_sum_amount || 0) }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <PrimaryButton>
-                                                    <Link :href="route('cash-flows.show', cashFlow.id)">View</Link>
-                                                </PrimaryButton>
-                                                <SecondaryButton class="mx-2">
-                                                    <Link :href="route('cash-flows.edit', cashFlow.id)">Edit</Link>
-                                                </SecondaryButton>
+                                                <Link :href="route('cash-flows.show', cashFlow.id)">
+                                                    <PrimaryButton>View</PrimaryButton>
+                                                </Link>
+                                                <Link :href="route('cash-flows.edit', cashFlow.id)">
+                                                    <SecondaryButton class="mx-2">Edit</SecondaryButton>
+                                                </Link>
                                             </td>
                                         </tr>
                                     </tbody>

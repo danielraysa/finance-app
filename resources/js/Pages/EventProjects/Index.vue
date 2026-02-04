@@ -209,12 +209,12 @@ const confirmApproval = async () => {
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ eventProject.status }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ formatCurrency(eventProject.details_sum_allocated_amount || 0) }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <PrimaryButton>
-                                                    <Link :href="route('event-projects.show', eventProject.id)">View</Link>
-                                                </PrimaryButton>
-                                                <SecondaryButton class="mx-2">
-                                                    <Link :href="route('event-projects.edit', eventProject.id)" class="text-indigo-600 hover:text-indigo-900">Edit</Link>
-                                                </SecondaryButton>
+                                                <Link :href="route('event-projects.show', eventProject.id)">
+                                                    <PrimaryButton>View</PrimaryButton>
+                                                </Link>
+                                                <Link :href="route('event-projects.edit', eventProject.id)" class="text-indigo-600 hover:text-indigo-900">
+                                                    <SecondaryButton class="mx-2">Edit</SecondaryButton>
+                                                </Link>
                                                 <PrimaryButton v-if="eventProject.status == 'planned'" @click="approveEventProject(eventProject.id)">Approval</PrimaryButton>
                                             </td>
                                         </tr>
