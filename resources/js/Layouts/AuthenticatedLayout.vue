@@ -61,8 +61,9 @@ const showingNavigationDropdown = ref(false);
                                         <DropdownLink :href="route('cash-accounts.index')"> Cash Accounts </DropdownLink>
                                         <DropdownLink :href="route('categories.index')"> Categories </DropdownLink>
                                         <DropdownLink :href="route('budgets.index')"> Budgets </DropdownLink>
-                                        <DropdownLink :href="route('users.index')"> Users </DropdownLink>
-                                        <DropdownLink :href="route('roles.index')"> Roles </DropdownLink>
+                                        <!-- only for admin -->
+                                        <DropdownLink v-if="$page.props.auth.user.roles?.some(role => role.name === 'admin')" :href="route('users.index')"> Users </DropdownLink>
+                                        <DropdownLink v-if="$page.props.auth.user.roles?.some(role => role.name === 'admin')" :href="route('roles.index')"> Roles </DropdownLink>
                                     </template>
                                 </Dropdown>
                                 <NavLink :href="route('cash-flows.index')" :active="route().current('cash-flows.*')">
@@ -200,10 +201,10 @@ const showingNavigationDropdown = ref(false);
                         <ResponsiveNavLink :href="route('budgets.index')" :active="route().current('budgets.*')">
                             Budgets
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('users.index')" :active="route().current('users.*')">
+                        <ResponsiveNavLink v-if="$page.props.auth.user.roles?.some(role => role.name === 'admin')" :href="route('users.index')" :active="route().current('users.*')">
                             Users
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('roles.index')" :active="route().current('roles.*')">
+                        <ResponsiveNavLink v-if="$page.props.auth.user.roles?.some(role => role.name === 'admin')" :href="route('roles.index')" :active="route().current('roles.*')">
                             Roles
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('cash-flows.index')" :active="route().current('cash-flows.*')">
