@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RolesEnum;
 use App\Models\EventProject;
 use App\Models\BudgetItem;
 use App\Models\CashAccount;
 use App\Models\CashFlow;
 use App\Models\User;
+use App\Notifications\EventProjectCreated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -106,9 +109,9 @@ class EventProjectController extends Controller
             if ($request->hasFile('attachment')) {
                 $attachmentPath = $request->file('attachment')->store('attachments', 'public');
             }
-
+            $creator = $request->user();
             $event = EventProject::create([
-                'user_id' => Auth::id(),
+                'user_id' => $creator->id,
                 'event_name' => $validated['event_name'],
                 'event_date' => $validated['event_date'],
                 'location' => $validated['location'] ?? null,
@@ -119,13 +122,20 @@ class EventProjectController extends Controller
                 'cash_flow_id' => $validated['cash_flow_id'] ?? null,
             ]);
 
+            $details = collect();
+
             foreach ($validated['details'] as $d) {
-                $event->details()->create([
+                $details->push([
                     'budget_item_id' => $d['budget_item_id'],
                     'allocated_amount' => $d['allocated_amount'],
                     'approved_amount' => $d['approved_amount'] ?? 0,
                 ]);
             }
+            $event->details()->createMany($details);
+
+            // send notification to verificator
+            $users = User::role(RolesEnum::VERIFICATOR)->get();
+            Notification::send($users, new EventProjectCreated($creator, $event));
         });
 
         return redirect()->route('event-projects.index')
@@ -292,7 +302,7 @@ class EventProjectController extends Controller
             'transaction_date' => $now,
             'reference_number' => $referenceNumber,
         ]);
-            
+
         $transactions = collect();
         $cashAccount = CashAccount::where('is_active', true)->first();
         foreach ($eventProject->details as $detail) {
