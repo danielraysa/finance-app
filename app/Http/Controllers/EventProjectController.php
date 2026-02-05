@@ -52,7 +52,7 @@ class EventProjectController extends Controller
         }
 
         // Sorting
-        $sortBy = $request->query('sort_by', 'event_date');
+        $sortBy = $request->query('sort_by', 'created_at');
         $sortDir = $request->query('sort_dir', 'desc');
         $query->orderBy($sortBy, $sortDir);
 

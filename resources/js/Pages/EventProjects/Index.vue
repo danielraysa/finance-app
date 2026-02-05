@@ -28,7 +28,7 @@ const applyFilters = () => {
     if (dateTo.value) params.append('date_to', dateTo.value);
     if (sortBy.value) params.append('sort_by', sortBy.value);
     if (sortDir.value) params.append('sort_dir', sortDir.value);
-    
+
     const url = route('event-projects.index') + (params.toString() ? ('?' + params.toString()) : '');
     window.location.href = url;
 };
@@ -137,7 +137,7 @@ const confirmApproval = async () => {
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
                                         <input v-model="search" @input="debouncedSubmit" type="text" placeholder="Name, location..." class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
                                     </div>
-                                    
+
                                     <!-- Status Filter -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
@@ -149,30 +149,30 @@ const confirmApproval = async () => {
                                             <option value="cancelled">Cancelled</option>
                                         </select>
                                     </div>
-                                    
+
                                     <!-- Date From -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
                                         <input v-model="dateFrom" @change="applyFilters" type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
                                     </div>
-                                    
+
                                     <!-- Date To -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
                                         <input v-model="dateTo" @change="applyFilters" type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
                                     </div>
-                                    
+
                                     <!-- Sort By -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
                                         <select v-model="sortBy" @change="applyFilters" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                            <option value="created_at">Created Date</option>
                                             <option value="event_date">Event Date</option>
                                             <option value="event_name">Event Name</option>
-                                            <option value="created_at">Created Date</option>
                                         </select>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Action Buttons -->
                                 <div class="flex justify-between items-center">
                                     <div class="flex space-x-2">
@@ -193,26 +193,29 @@ const confirmApproval = async () => {
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
                                         <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Allocated</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
                                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         <tr v-for="eventProject in eventProjects.data" :key="eventProject.id">
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatDate(eventProject.event_date) }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ eventProject.event_name }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {{ eventProject.event_name }}
+                                                <p class="text-sm text-gray-500">{{ formatDate(eventProject.event_date) }}</p>
+                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ eventProject.location || '-' }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ eventProject.status }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ formatCurrency(eventProject.details_sum_allocated_amount || 0) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatDate(eventProject.created_at) }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <Link :href="route('event-projects.show', eventProject.id)">
                                                     <PrimaryButton>View</PrimaryButton>
                                                 </Link>
-                                                <Link :href="route('event-projects.edit', eventProject.id)" class="text-indigo-600 hover:text-indigo-900">
+                                                <Link v-if="eventProject.status == 'planned' && eventProject.cashFlow == null" :href="route('event-projects.edit', eventProject.id)" class="text-indigo-600 hover:text-indigo-900">
                                                     <SecondaryButton class="mx-2">Edit</SecondaryButton>
                                                 </Link>
                                                 <PrimaryButton v-if="eventProject.status == 'planned'" @click="approveEventProject(eventProject.id)">Approval</PrimaryButton>
