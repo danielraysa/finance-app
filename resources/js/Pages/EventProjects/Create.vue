@@ -111,13 +111,13 @@ const submit = () => {
                                     <input id="attachment" type="file" class="mt-1 block w-full text-gray-700" @input="form.attachment = $event.target.files[0]" />
                                 </div>
 
-                                <div class="mb-6">
+                                <!-- <div class="mb-6">
                                     <InputLabel for="cash_flow_id" value="Link to Cash Flow (Optional)" />
                                     <select id="cash_flow_id" v-model="form.cash_flow_id" class="mt-1 block w-full border-gray-300 rounded-md">
                                         <option value="" disabled>Select cash flow</option>
                                         <option v-for="cf in props.cashFlows || []" :key="cf.id" :value="cf.id">{{ cf.reference_number || cf.transaction_date }}</option>
                                     </select>
-                                </div>
+                                </div> -->
                             </div>
 
                             <div class="mb-4">

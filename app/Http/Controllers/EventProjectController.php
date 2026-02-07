@@ -97,7 +97,7 @@ class EventProjectController extends Controller
             'note' => 'nullable|string',
             'status' => 'nullable|string',
             'attachment' => 'nullable|file',
-            'cash_flow_id' => 'nullable|exists:cash_flows,id',
+            // 'cash_flow_id' => 'nullable|exists:cash_flows,id',
             'details' => 'required|array|min:1',
             'details.*.budget_item_id' => 'required|exists:budget_items,id',
             'details.*.allocated_amount' => 'required|numeric|min:0',
@@ -119,7 +119,7 @@ class EventProjectController extends Controller
                 'note' => $validated['note'] ?? null,
                 'status' => $validated['status'] ?? 'planned',
                 'attachment' => $attachmentPath,
-                'cash_flow_id' => $validated['cash_flow_id'] ?? null,
+                // 'cash_flow_id' => $validated['cash_flow_id'] ?? null,
             ]);
 
             $details = collect();
@@ -187,7 +187,7 @@ class EventProjectController extends Controller
             'note' => 'nullable|string',
             'status' => 'nullable|string',
             'attachment' => 'nullable|file',
-            'cash_flow_id' => 'nullable|exists:cash_flows,id',
+            // 'cash_flow_id' => 'nullable|exists:cash_flows,id',
             'details' => 'required|array|min:1',
             'details.*.budget_item_id' => 'required|exists:budget_items,id',
             'details.*.allocated_amount' => 'required|numeric|min:0',
@@ -209,7 +209,7 @@ class EventProjectController extends Controller
             $eventProject->description = $validated['description'] ?? null;
             $eventProject->note = $validated['note'] ?? null;
             $eventProject->status = $validated['status'] ?? $eventProject->status;
-            $eventProject->cash_flow_id = $validated['cash_flow_id'] ?? null;
+            // $eventProject->cash_flow_id = $validated['cash_flow_id'] ?? null;
             $eventProject->save();
 
             // Replace details
