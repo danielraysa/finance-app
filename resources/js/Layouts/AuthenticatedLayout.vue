@@ -5,6 +5,7 @@ import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import NotificationIcon from '@/Components/NotificationIcon.vue';
 import { Link } from '@inertiajs/vue3';
 
 const showingNavigationDropdown = ref(false);
@@ -110,6 +111,11 @@ const showingNavigationDropdown = ref(false);
                         </div>
 
                         <div class="hidden sm:flex sm:items-center sm:ms-6">
+                            <!-- Notifications -->
+                            <div class="ps-3 border-s border-gray-100">
+                                <NotificationIcon />
+                            </div>
+
                             <!-- Settings Dropdown -->
                             <div class="ms-3 relative">
                                 <Dropdown align="right" width="48">

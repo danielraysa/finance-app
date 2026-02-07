@@ -11,6 +11,7 @@ use App\Http\Controllers\CashFlowController;
 use App\Http\Controllers\EventProjectController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -72,6 +73,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/budget-reports', [BudgetReportController::class, 'index'])->name('budget-reports.index');
     Route::get('/budget-reports/{budget}', [BudgetReportController::class, 'show'])->name('budget-reports.show');
     Route::get('/budget-reports/{budget}/pdf', [BudgetReportController::class, 'generatePdf'])->name('budget-reports.pdf');
+
+    // Notifications Routes
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{notificationId}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
+    Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-as-read');
+    Route::delete('/notifications/{notificationId}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 });
 
 require __DIR__.'/auth.php';
