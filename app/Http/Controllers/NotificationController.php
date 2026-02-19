@@ -8,7 +8,7 @@ use Inertia\Inertia;
 class NotificationController extends Controller
 {
     /**
-     * Get user notifications
+     * Display the notifications page (Inertia view)
      */
     public function index(Request $request)
     {
@@ -20,16 +20,26 @@ class NotificationController extends Controller
 
         $unreadCount = $user->unreadNotifications()->count();
 
-        // If it's a JSON request (from API), return JSON
-        if ($request->wantsJson()) {
-            return response()->json([
-                'notifications' => $notifications,
-                'unreadCount' => $unreadCount,
-            ]);
-        }
-
-        // Otherwise, return Inertia page view
         return Inertia::render('Notifications/Index', [
+            'notifications' => $notifications,
+            'unreadCount' => $unreadCount,
+        ]);
+    }
+
+    /**
+     * Get notifications as JSON (for API/dropdown)
+     */
+    public function list(Request $request)
+    {
+        $user = $request->user();
+
+        $notifications = $user->notifications()
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $unreadCount = $user->unreadNotifications()->count();
+
+        return response()->json([
             'notifications' => $notifications,
             'unreadCount' => $unreadCount,
         ]);
