@@ -29,7 +29,7 @@ const renderChart = () => {
 const initChart = () => {
     const ctx = document.getElementById('financialChart');
     if (!ctx) return;
-    
+
     new Chart(ctx, {
         type: 'bar',
         data: {
@@ -60,7 +60,7 @@ const initChart = () => {
             }
         }
     });
-    
+
     chartLoaded.value = true;
 };
 
@@ -94,7 +94,7 @@ const formatDate = (dateString) => {
                             <p class="mt-1 text-sm text-gray-500">Current cash balance</p>
                         </div>
                     </div>
-                    
+
                     <!-- Total Income Card -->
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6">
@@ -103,7 +103,7 @@ const formatDate = (dateString) => {
                             <p class="mt-1 text-sm text-gray-500">All time income</p>
                         </div>
                     </div>
-                    
+
                     <!-- Total Expense Card -->
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6">
@@ -112,7 +112,7 @@ const formatDate = (dateString) => {
                             <p class="mt-1 text-sm text-gray-500">All time expense</p>
                         </div>
                     </div>
-                    
+
                     <!-- Net Balance Card -->
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6">
@@ -122,7 +122,7 @@ const formatDate = (dateString) => {
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Main Content -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <!-- Cash Accounts -->
@@ -135,14 +135,14 @@ const formatDate = (dateString) => {
                                         Add New
                                     </Link>
                                 </div>
-                                
+
                                 <div v-if="cashAccounts.length === 0" class="text-center py-4">
                                     <p class="text-gray-500">No cash accounts found</p>
                                     <Link :href="route('cash-accounts.create')" class="mt-2 inline-block text-indigo-600 hover:text-indigo-800">
                                         Create your first cash account
                                     </Link>
                                 </div>
-                                
+
                                 <ul v-else class="divide-y divide-gray-200">
                                     <li v-for="account in cashAccounts" :key="account.id" class="py-3">
                                         <Link :href="route('cash-accounts.show', account.id)" class="block hover:bg-gray-50">
@@ -160,7 +160,7 @@ const formatDate = (dateString) => {
                                         </Link>
                                     </li>
                                 </ul>
-                                
+
                                 <div class="mt-4 text-right">
                                     <Link :href="route('cash-accounts.index')" class="text-sm text-indigo-600 hover:text-indigo-800">
                                         View all cash accounts →
@@ -168,24 +168,18 @@ const formatDate = (dateString) => {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Recent Transactions -->
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                             <div class="p-6">
                                 <div class="flex justify-between items-center mb-4">
                                     <h3 class="text-lg font-medium text-gray-900">Recent Transactions</h3>
-                                    <Link :href="route('transactions.create')" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                                        Add New
-                                    </Link>
                                 </div>
-                                
+
                                 <div v-if="recentTransactions.length === 0" class="text-center py-4">
                                     <p class="text-gray-500">No transactions found</p>
-                                    <Link :href="route('transactions.create')" class="mt-2 inline-block text-indigo-600 hover:text-indigo-800">
-                                        Record your first transaction
-                                    </Link>
                                 </div>
-                                
+
                                 <ul v-else class="divide-y divide-gray-200">
                                     <li v-for="transaction in recentTransactions" :key="transaction.id" class="py-3">
                                         <Link :href="route('transactions.show', transaction.id)" class="block hover:bg-gray-50">
@@ -203,7 +197,7 @@ const formatDate = (dateString) => {
                                         </Link>
                                     </li>
                                 </ul>
-                                
+
                                 <div class="mt-4 text-right">
                                     <Link :href="route('transactions.index')" class="text-sm text-indigo-600 hover:text-indigo-800">
                                         View all transactions →
@@ -212,21 +206,21 @@ const formatDate = (dateString) => {
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Chart -->
                     <div class="lg:col-span-2">
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                             <div class="p-6">
                                 <h3 class="text-lg font-medium text-gray-900 mb-4">Income vs Expense (Last 6 Months)</h3>
-                                
+
                                 <div v-if="chartData.labels.length === 0" class="text-center py-12">
                                     <p class="text-gray-500">No data available for chart</p>
                                 </div>
-                                
+
                                 <div v-else class="h-80">
                                     <canvas id="financialChart"></canvas>
                                 </div>
-                                
+
                                 <div class="mt-6 text-right">
                                     <Link :href="route('reports')" class="text-sm text-indigo-600 hover:text-indigo-800">
                                         View detailed reports →
