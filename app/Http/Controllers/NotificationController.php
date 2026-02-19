@@ -20,7 +20,16 @@ class NotificationController extends Controller
 
         $unreadCount = $user->unreadNotifications()->count();
 
-        return response()->json([
+        // If it's a JSON request (from API), return JSON
+        if ($request->wantsJson()) {
+            return response()->json([
+                'notifications' => $notifications,
+                'unreadCount' => $unreadCount,
+            ]);
+        }
+
+        // Otherwise, return Inertia page view
+        return Inertia::render('Notifications/Index', [
             'notifications' => $notifications,
             'unreadCount' => $unreadCount,
         ]);

@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import NotificationItem from '@/Components/NotificationItem.vue';
-import { router } from '@inertiajs/vue3';
+import { router, Link } from '@inertiajs/vue3';
 
 const props = defineProps({
     notifications: {
@@ -18,6 +18,14 @@ const emit = defineEmits(['close', 'notification-click']);
 
 const hasNotifications = computed(() => {
     return Array.isArray(props.notifications) && props.notifications.length > 0;
+});
+
+const displayedNotifications = computed(() => {
+    return props.notifications.slice(0, 5);
+});
+
+const remainingCount = computed(() => {
+    return Math.max(0, props.notifications.length - 5);
 });
 
 const markAllAsRead = async () => {
@@ -57,7 +65,7 @@ const markAllAsRead = async () => {
         <div class="max-h-96 overflow-y-auto">
             <div v-if="hasNotifications" class="divide-y divide-gray-100">
                 <NotificationItem
-                    v-for="notification in notifications"
+                    v-for="notification in displayedNotifications"
                     :key="notification.id"
                     :notification="notification"
                     @close="$emit('close')"
@@ -83,6 +91,17 @@ const markAllAsRead = async () => {
                 </svg>
                 <p class="mt-2 text-sm font-medium text-gray-900">No notifications</p>
                 <p class="mt-1 text-sm text-gray-500">You're all caught up!</p>
+            </div>
+
+            <!-- View All Notifications Link -->
+            <div v-if="hasNotifications" class="border-t border-gray-100 px-4 py-3 text-center bg-gray-50">
+                <Link
+                    :href="route('notifications.index')"
+                    class="text-sm font-medium text-blue-600 hover:text-blue-700 transition ease-in-out duration-150"
+                    @click="$emit('close')"
+                >
+                    {{ remainingCount > 0 ? `View all (${props.notifications.length})` : 'View all notifications' }}
+                </Link>
             </div>
         </div>
     </div>

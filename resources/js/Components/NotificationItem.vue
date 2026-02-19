@@ -45,6 +45,18 @@ const notificationContent = computed(() => {
     }
 });
 
+const getNotificationTitle = computed(() => {
+    const content = notificationContent.value;
+    if (typeof content === 'string') return content;
+    return content?.title || 'New notification';
+});
+
+const getNotificationLink = computed(() => {
+    const content = notificationContent.value;
+    if (typeof content === 'string') return content;
+    return content?.link || '#';
+});
+
 const getMessage = computed(() => {
     const content = notificationContent.value;
     if (typeof content === 'string') {
@@ -54,7 +66,12 @@ const getMessage = computed(() => {
 });
 
 const markAsRead = async () => {
-    if (isRead.value) return;
+    if (isRead.value) {
+        if (getNotificationLink.value && getNotificationLink.value !== '#') {
+            return router.visit(getNotificationLink.value);
+        }
+        return;
+    }
 
     try {
         // await fetch(`/notifications/${props.notification.id}/mark-as-read`, {
@@ -124,7 +141,7 @@ const deleteNotification = async (e) => {
                         'bg-gray-100 text-gray-800': !notification.type.includes('Created') && !notification.type.includes('Updated') && !notification.type.includes('Approval'),
                     }"
                 >
-                    {{ notification.type.split('\\').pop() || 'notification' }}
+                    {{ getNotificationTitle }}
                 </span>
             </div>
 

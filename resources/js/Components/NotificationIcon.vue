@@ -16,7 +16,7 @@ onMounted(() => {
 
 const fetchNotifications = async () => {
     try {
-        const response = await fetch(route('notifications.index'));
+        const response = await fetch(route('notifications.list'));
         const data = await response.json();
         notifications.value = data.notifications;
         unreadCount.value = data.unreadCount;
