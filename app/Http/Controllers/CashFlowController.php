@@ -16,8 +16,7 @@ class CashFlowController extends Controller
 {
     public function index(Request $request)
     {
-        $query = CashFlow::where('user_id', Auth::id())
-            ->with(['transactions.cashAccount', 'transactions.category']);
+        $query = CashFlow::with(['transactions.cashAccount', 'transactions.category']);
 
         // Search filter
         if ($request->filled('search')) {
@@ -62,7 +61,7 @@ class CashFlowController extends Controller
 
     public function create()
     {
-        $cashAccounts = Auth::user()->cashAccounts()->where('is_active', true)->get();
+        $cashAccounts = CashAccount::where('is_active', true)->get();
         $categories = TransactionCategory::where('is_active', true)->get();
 
         return Inertia::render('CashFlows/Create', [
@@ -143,7 +142,7 @@ class CashFlowController extends Controller
     public function edit(CashFlow $cashFlow)
     {
         // $this->authorize('update', $cashFlow);
-        $cashAccounts = Auth::user()->cashAccounts()->where('is_active', true)->get();
+        $cashAccounts = CashAccount::where('is_active', true)->get();
         $categories = TransactionCategory::where('is_active', true)->get();
 
         $cashFlow->load('transactions');

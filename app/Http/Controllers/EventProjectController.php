@@ -24,8 +24,7 @@ class EventProjectController extends Controller
      */
     public function index(Request $request)
     {
-        $query = EventProject::where('user_id', Auth::id())
-            ->with(['details.budgetItem', 'cashFlow']);
+        $query = EventProject::with(['details.budgetItem', 'cashFlow']);
 
         // Search filter
         if ($request->filled('search')) {

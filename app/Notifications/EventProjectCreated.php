@@ -42,7 +42,7 @@ class EventProjectCreated extends Notification
     {
         return (new MailMessage)
             ->subject('New Event Project Created')
-            ->markdown('mail.event-created', ['eventProject' => $this->eventProject]);
+            ->markdown('mail.event-created', ['eventProject' => $this->eventProject, 'creator' => $this->creator]);
     }
 
     /**
@@ -53,8 +53,8 @@ class EventProjectCreated extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'event_project_id' => $this->eventProject->id,
-            'event_name' => $this->eventProject->event_name,
+            'link' => route('event-projects.show', $this->eventProject->id),
+            'title' => 'Kegiatan Baru Dibuat',
             'message' => 'Ada kegiatan baru yang dibuat oleh ' . $this->creator->name,
         ];
     }

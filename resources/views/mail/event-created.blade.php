@@ -1,8 +1,10 @@
 <x-mail::message>
 # Pemberitahuan Kegiatan Baru Dibuat
 
-Nama Kegiatan: {{ $eventProject->event_name }}
-Tgl: {{ $eventProject->event_date->format('d/m/Y') }}
+Nama Kegiatan: {{ $eventProject->event_name }}<br>
+Tgl Kegiatan: {{ $eventProject->event_date->format('d/m/Y') }}<br>
+Pembuat: {{ $creator->name }}<br>
+
 @if($eventProject->description != null)
 Deskripsi: {{ $eventProject->description }}
 @endif

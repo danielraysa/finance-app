@@ -213,10 +213,10 @@ const confirmApproval = async () => {
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatDate(eventProject.created_at) }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <Link :href="route('event-projects.show', eventProject.id)">
-                                                    <PrimaryButton>View</PrimaryButton>
+                                                    <PrimaryButton class="mr-2">View</PrimaryButton>
                                                 </Link>
-                                                <Link v-if="eventProject.status == 'planned' && eventProject.cashFlow == null" :href="route('event-projects.edit', eventProject.id)" class="text-indigo-600 hover:text-indigo-900">
-                                                    <SecondaryButton class="mx-2">Edit</SecondaryButton>
+                                                <Link v-if="eventProject.status == 'planned' && eventProject.user_id == $page.props.auth.user.id && eventProject.cashFlow == null" :href="route('event-projects.edit', eventProject.id)" class="text-indigo-600 hover:text-indigo-900">
+                                                    <SecondaryButton class="mr-2">Edit</SecondaryButton>
                                                 </Link>
                                                 <PrimaryButton v-if="eventProject.status == 'planned'" @click="approveEventProject(eventProject.id)">Approval</PrimaryButton>
                                             </td>
