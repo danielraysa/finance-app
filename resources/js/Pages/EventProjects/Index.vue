@@ -67,6 +67,11 @@ const confirmingApproval = ref(false);
 const approvingId = ref(null);
 const approvingLoading = ref(false);
 
+const confirmingRejection = ref(false);
+const rejectingId = ref(null);
+const rejectingLoading = ref(false);
+const rejectionReason = ref('');
+
 const approveEventProject = (id) => {
     approvingId.value = id;
     confirmingApproval.value = true;
@@ -103,6 +108,55 @@ const confirmApproval = async () => {
         approvingLoading.value = false;
         confirmingApproval.value = false;
         approvingId.value = null;
+    }
+};
+
+const rejectEventProject = (id) => {
+    rejectingId.value = id;
+    rejectionReason.value = '';
+    confirmingRejection.value = true;
+};
+
+const closeRejectionModal = () => {
+    confirmingRejection.value = false;
+    rejectingId.value = null;
+    rejectionReason.value = '';
+    rejectingLoading.value = false;
+};
+
+const confirmRejection = async () => {
+    if (!rejectingId.value || !rejectionReason.value.trim()) {
+        alert('Please provide a rejection reason');
+        return;
+    }
+
+    rejectingLoading.value = true;
+
+    try {
+        router.post(route('event-projects.reject', rejectingId.value), {
+            rejection_reason: rejectionReason.value
+        }, {
+            onStart: () => {
+                rejectingLoading.value = true;
+            },
+            onSuccess: () => {
+                window.location.reload();
+            },
+            onError: () => {
+                rejectingLoading.value = false;
+            },
+            onFinish: () => {
+                confirmingRejection.value = false;
+                rejectingId.value = null;
+                rejectionReason.value = '';
+            },
+        });
+    } catch (e) {
+        console.error(e);
+        rejectingLoading.value = false;
+        confirmingRejection.value = false;
+        rejectingId.value = null;
+        rejectionReason.value = '';
     }
 };
 </script>
@@ -218,7 +272,8 @@ const confirmApproval = async () => {
                                                 <Link v-if="eventProject.status == 'planned' && eventProject.user_id == $page.props.auth.user.id && eventProject.cashFlow == null" :href="route('event-projects.edit', eventProject.id)" class="text-indigo-600 hover:text-indigo-900">
                                                     <SecondaryButton class="mr-2">Edit</SecondaryButton>
                                                 </Link>
-                                                <PrimaryButton v-if="eventProject.status == 'planned'" @click="approveEventProject(eventProject.id)">Approval</PrimaryButton>
+                                                <PrimaryButton v-if="eventProject.status == 'planned'" @click="approveEventProject(eventProject.id)" class="mr-2">Approval</PrimaryButton>
+                                                <button v-if="eventProject.status == 'planned'" @click="rejectEventProject(eventProject.id)" class="px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700">Reject</button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -258,6 +313,26 @@ const confirmApproval = async () => {
                         <span v-if="!approvingLoading">Confirm Approval</span>
                         <span v-else>Approving...</span>
                     </PrimaryButton>
+                </div>
+            </div>
+        </Modal>
+
+        <!-- Rejection Modal -->
+        <Modal :show="confirmingRejection" @close="closeRejectionModal">
+            <div class="p-6">
+                <h2 class="text-lg font-medium text-gray-900">Reject Event Project</h2>
+                <p class="mt-1 text-sm text-gray-600">Please provide a reason for rejecting this event project.</p>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Rejection Reason</label>
+                    <textarea v-model="rejectionReason" placeholder="Enter the reason for rejection..." rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-red-500" />
+                    <p class="mt-1 text-xs text-gray-500">Minimum 10 characters required</p>
+                </div>
+                <div class="mt-6 flex justify-end space-x-4">
+                    <SecondaryButton @click="closeRejectionModal">Cancel</SecondaryButton>
+                    <button @click="confirmRejection" :class="['px-4 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700', { 'opacity-50 pointer-events-none': rejectingLoading }]" :disabled="rejectingLoading || !rejectionReason.trim() || rejectionReason.trim().length < 10">
+                        <span v-if="!rejectingLoading">Confirm Rejection</span>
+                        <span v-else>Rejecting...</span>
+                    </button>
                 </div>
             </div>
         </Modal>

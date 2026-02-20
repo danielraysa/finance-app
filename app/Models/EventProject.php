@@ -20,6 +20,7 @@ class EventProject extends Model
         'complete_date',
         'attachment',
         'cash_flow_id',
+        'rejection_reason',
     ];
 
     protected $casts = [

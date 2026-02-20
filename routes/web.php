@@ -67,6 +67,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('event-projects', EventProjectController::class);
     Route::post('/event-projects/{id}/approval', [EventProjectController::class, 'approval'])->name('event-projects.approval');
+    Route::post('/event-projects/{id}/reject', [EventProjectController::class, 'reject'])->name('event-projects.reject');
     Route::post('/event-projects/{id}/generate-cash-flow', [EventProjectController::class, 'generateCashFlow'])->name('event-projects.generate-cash-flow');
 
     // Budget Reports Routes

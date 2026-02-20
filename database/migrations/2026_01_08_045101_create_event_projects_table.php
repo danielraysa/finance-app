@@ -20,6 +20,7 @@ return new class extends Migration
             $table->text('note')->nullable();
             $table->foreignId('user_id')->constrained();
             $table->string('status')->default('planned');
+            $table->text('rejection_reason')->nullable();
             $table->foreignId('verified_by')->nullable()->constrained('users');
             $table->date('verified_date')->nullable();
             $table->date('complete_date')->nullable();

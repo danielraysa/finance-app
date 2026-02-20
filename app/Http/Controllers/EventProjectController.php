@@ -10,6 +10,7 @@ use App\Models\CashFlow;
 use App\Models\User;
 use App\Notifications\EventProjectApproval;
 use App\Notifications\EventProjectCreated;
+use App\Notifications\EventProjectRejected;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -275,6 +276,38 @@ class EventProjectController extends Controller
             $user = Auth::user();
             activity()->performedOn($eventProject)->log($user->name . ' memberikan persetujuan pada kegiatan: ' . $eventProject->event_name);
         });
+    }
+
+    /**
+     * Reject event project with reason.
+     */
+    public function reject(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'rejection_reason' => 'required|string|min:10|max:1000',
+        ]);
+
+        DB::transaction(function () use ($validated, $id) {
+            $eventProject = EventProject::lockForUpdate()->findOrFail($id);
+            $eventProject->status = 'rejected';
+            $eventProject->rejection_reason = $validated['rejection_reason'];
+            $eventProject->verified_by = Auth::id();
+            $eventProject->verified_date = now();
+            $eventProject->save();
+
+            // Broadcast event
+            broadcast(new EventProjectStatusUpdated($eventProject));
+
+            // Send notification to the project creator
+            $user = User::find($eventProject->user_id);
+            Notification::send($user, new EventProjectRejected($eventProject, $validated['rejection_reason']));
+
+            $authenticatedUser = Auth::user();
+            activity()->performedOn($eventProject)->log($authenticatedUser->name . ' menolak kegiatan: ' . $eventProject->event_name);
+        });
+
+        return redirect()->route('event-projects.index')
+            ->with('success', 'Event project rejected successfully.');
     }
 
     /**
