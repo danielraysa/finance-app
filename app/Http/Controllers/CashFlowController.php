@@ -123,6 +123,9 @@ class CashFlowController extends Controller
                 }
                 $cashAccount->save();
             }
+
+            $user = $request->user();
+            activity()->performedOn($cashFlow)->log($user->name . ' membuat arus dana baru: ' . $cashFlow->reference_number);
         });
 
         return redirect()->route('cash-flows.index')
@@ -223,6 +226,9 @@ class CashFlowController extends Controller
                 }
                 $acc->save();
             }
+
+            $user = $request->user();
+            activity()->performedOn($cashFlow)->log($user->name . ' melakukan perubahan data arus dana: ' . $cashFlow->reference_number);
         });
 
         return redirect()->route('cash-flows.index')
@@ -248,6 +254,9 @@ class CashFlowController extends Controller
             if ($cashFlow->attachment) {
                 Storage::disk('public')->delete($cashFlow->attachment);
             }
+
+            $user = Auth::user();
+            activity()->performedOn($cashFlow)->log($user->name . ' menghapus arus dana: ' . $cashFlow->reference_number);
             $cashFlow->delete();
         });
 

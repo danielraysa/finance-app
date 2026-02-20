@@ -14,8 +14,8 @@ class TransactionCategoryController extends Controller
      */
     public function index()
     {
-        $categories = Auth::user()->transactionCategories()->get();
-        
+        $categories = TransactionCategory::all();
+
         return Inertia::render('Categories/Index', [
             'categories' => $categories
         ]);
@@ -46,7 +46,8 @@ class TransactionCategoryController extends Controller
         $validated['user_id'] = Auth::id();
 
         $category = TransactionCategory::create($validated);
-
+        $user = $request->user();
+        activity()->performedOn($category)->log($user->name . ' membuat kategori baru: ' . $category->name);
         return redirect()->route('categories.index')
             ->with('success', 'Category created successfully.');
     }
@@ -57,12 +58,12 @@ class TransactionCategoryController extends Controller
     public function show(TransactionCategory $category)
     {
         $this->authorize('view', $category);
-        
+
         $transactions = $category->transactions()
             ->with('cashAccount')
             ->latest('transaction_date')
             ->paginate(10);
-            
+
         return Inertia::render('Categories/Show', [
             'category' => $category,
             'transactions' => $transactions
@@ -75,7 +76,7 @@ class TransactionCategoryController extends Controller
     public function edit(TransactionCategory $category)
     {
         $this->authorize('update', $category);
-        
+
         return Inertia::render('Categories/Edit', [
             'category' => $category
         ]);
@@ -87,7 +88,7 @@ class TransactionCategoryController extends Controller
     public function update(Request $request, TransactionCategory $category)
     {
         $this->authorize('update', $category);
-        
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'required|in:income,expense',
@@ -98,7 +99,8 @@ class TransactionCategoryController extends Controller
         ]);
 
         $category->update($validated);
-
+        $user = $request->user();
+        activity()->performedOn($category)->log($user->name . ' melakukan perubahaan data kategori: ' . $category->name);
         return redirect()->route('categories.index')
             ->with('success', 'Category updated successfully.');
     }
@@ -109,13 +111,14 @@ class TransactionCategoryController extends Controller
     public function destroy(TransactionCategory $category)
     {
         $this->authorize('delete', $category);
-        
+
         // Check if the category has transactions
         if ($category->transactions()->count() > 0) {
             return redirect()->route('categories.index')
                 ->with('error', 'Cannot delete category with transactions.');
         }
-        
+        $user = Auth::user();
+        activity()->performedOn($category)->log($user->name . ' menghapus  kategori: ' . $category->name);
         $category->delete();
 
         return redirect()->route('categories.index')

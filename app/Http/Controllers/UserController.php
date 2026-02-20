@@ -86,6 +86,8 @@ class UserController extends Controller
         $roles = Role::whereIn('id', $validated['roles'])->pluck('name')->toArray();
         $user->assignRole($roles);
 
+        $creator = $request->user();
+        activity()->performedOn($user)->log($creator->name . ' membuat user baru: ' . $user->name);
         return redirect()->route('users.index')
             ->with('success', 'User created successfully.');
     }
@@ -138,6 +140,8 @@ class UserController extends Controller
         $roles = Role::whereIn('id', $validated['roles'])->pluck('name')->toArray();
         $user->syncRoles($roles);
 
+        $creator = $request->user();
+        activity()->performedOn($user)->log($creator->name . ' melakukan perubahan data user: ' . $user->name);
         return redirect()->route('users.index')
             ->with('success', 'User updated successfully.');
     }
@@ -151,6 +155,8 @@ class UserController extends Controller
             return redirect()->back()->with('error', 'You cannot delete your own account.');
         }
 
+        $creator = Auth::user();
+        activity()->performedOn($user)->log($creator->name . ' menghapus user: ' . $user->name);
         $user->delete();
 
         return redirect()->route('users.index')

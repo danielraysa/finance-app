@@ -17,7 +17,7 @@ class CashAccountController extends Controller
         $cashAccounts = Auth::user()->cashAccounts()
             ->orderBy('name')
             ->paginate(10);
-        
+
         return Inertia::render('CashAccounts/Index', [
             'cashAccounts' => $cashAccounts
         ]);
@@ -44,11 +44,12 @@ class CashAccountController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $validated['user_id'] = Auth::id();
+        $user = $request->user();
+        $validated['user_id'] = $user->id;
         $validated['current_balance'] = $validated['initial_balance'];
 
         $cashAccount = CashAccount::create($validated);
-
+        activity()->performedOn($cashAccount)->log($user->name . ' membuat akun kas baru: ' . $cashAccount->name);
         return redirect()->route('cash-accounts.index')
             ->with('success', 'Cash account created successfully.');
     }
@@ -59,7 +60,7 @@ class CashAccountController extends Controller
     public function show(CashAccount $cashAccount)
     {
         $this->authorize('view', $cashAccount);
-        
+
         $transactions = $cashAccount->transactions()
             ->with('category')
             ->latest('transaction_date')
@@ -78,7 +79,7 @@ class CashAccountController extends Controller
     public function edit(CashAccount $cashAccount)
     {
         $this->authorize('update', $cashAccount);
-        
+
         return Inertia::render('CashAccounts/Edit', [
             'cashAccount' => $cashAccount
         ]);
@@ -90,7 +91,7 @@ class CashAccountController extends Controller
     public function update(Request $request, CashAccount $cashAccount)
     {
         $this->authorize('update', $cashAccount);
-        
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'account_number' => 'nullable|string|max:255',
@@ -99,7 +100,8 @@ class CashAccountController extends Controller
         ]);
 
         $cashAccount->update($validated);
-
+        $user = $request->user();
+        activity()->performedOn($cashAccount)->log($user->name . ' melakukan perubahan data akun kas: ' . $cashAccount->name);
         return redirect()->route('cash-accounts.index')
             ->with('success', 'Cash account updated successfully.');
     }
@@ -110,7 +112,9 @@ class CashAccountController extends Controller
     public function destroy(CashAccount $cashAccount)
     {
         $this->authorize('delete', $cashAccount);
-        
+        $user = Auth::user();
+        activity()->performedOn($cashAccount)->log($user->name . ' menghapus akun kas: ' . $cashAccount->name);
+
         $cashAccount->delete();
 
         return redirect()->route('cash-accounts.index')
