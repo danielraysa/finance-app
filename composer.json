@@ -9,8 +9,11 @@
         "guzzlehttp/guzzle": "^7.2",
         "inertiajs/inertia-laravel": "^1.0",
         "laravel/framework": "^11.0",
+        "laravel/octane": "^2.13",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.8",
+        "spatie/laravel-activitylog": "^4.11",
+        "spatie/laravel-backup": "^9.3",
         "spatie/laravel-permission": "^6.24",
         "tightenco/ziggy": "^2.0"
     },
