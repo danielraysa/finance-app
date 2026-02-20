@@ -2,6 +2,7 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import CategoryDistributionChart from '@/Components/Charts/CategoryDistributionChart.vue';
 
 const props = defineProps({
     budget: Object,
@@ -111,15 +112,7 @@ const formatCurrency = (amount) => {
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             <!-- Category Chart -->
                             <div class="bg-gray-50 p-4 rounded-lg">
-                                <div class="aspect-w-1 aspect-h-1">
-                                    <!-- This is a placeholder for a chart component -->
-                                    <div class="w-full h-full flex items-center justify-center">
-                                        <div class="text-center">
-                                            <div class="text-gray-500">Category Distribution Chart</div>
-                                            <div class="mt-2 text-sm text-gray-400">Implement with Chart.js or similar library</div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <CategoryDistributionChart :data="categoryBreakdown" title="Category Breakdown" />
                             </div>
 
                             <!-- Category Table -->
