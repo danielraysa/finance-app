@@ -6,6 +6,7 @@ use App\Models\EventProject;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -13,14 +14,12 @@ class EventProjectApproval extends Notification
 {
     use Queueable;
 
-    public $eventProject;
-
     /**
      * Create a new notification instance.
      */
-    public function __construct(EventProject $eventProject)
+    public function __construct(public EventProject $eventProject)
     {
-        $this->eventProject = $eventProject;
+        //
     }
 
     /**
@@ -30,7 +29,18 @@ class EventProjectApproval extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'broadcast'];
+    }
+
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        $user = User::find($this->eventProject->verified_by);
+        return new BroadcastMessage([
+            'link' => route('event-projects.show', $this->eventProject->id),
+            'title' => 'Persetujuan Kegiatan',
+            'message' => 'Kegiatan ' . $this->eventProject->event_name . ' yang dibuat sudah disetujui oleh ' . $user->name,
+            'type' => 'success',
+        ]);
     }
 
     /**
@@ -54,7 +64,7 @@ class EventProjectApproval extends Notification
         return [
             'link' => route('event-projects.show', $this->eventProject->id),
             'title' => 'Persetujuan Kegiatan',
-            'message' => 'Kegiatan yang dibuat sudah disetujui oleh ' . $user->name,
+            'message' => 'Kegiatan ' . $this->eventProject->event_name . ' yang dibuat sudah disetujui oleh ' . $user->name,
         ];
     }
 }
