@@ -39,7 +39,7 @@ const filteredCategoriesFor = (type) => props.categories.filter(c => c.type === 
 const submit = () => {
     const routeUrl = route('cash-flows.update', props.cashFlow.id);
     if (form.attachment) {
-        form.post(routeUrl, { method: 'put', forceFormData: true });
+        form.put(routeUrl, { forceFormData: true });
     } else {
         form.put(routeUrl);
     }
