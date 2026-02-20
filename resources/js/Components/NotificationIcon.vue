@@ -11,7 +11,7 @@ const page = usePage();
 onMounted(() => {
     fetchNotifications();
     // Poll for new notifications every 60 seconds
-    setInterval(fetchNotifications, 60000);
+    // setInterval(fetchNotifications, 60000);
 });
 
 const fetchNotifications = async () => {
