@@ -3,13 +3,17 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Modal from '@/Components/Modal.vue';
-import { Head, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
+const page = usePage();
 const props = defineProps({
     eventProjects: Object,
     filters: Object
 });
+
+const user = computed(() => page.props.auth.user);
+const isVerificator = computed(() => user.value?.roles?.map((role) => role.name).includes('verificator'));
 
 const search = ref(props.filters?.search || '');
 const statusFilter = ref(props.filters?.status || '');
@@ -269,11 +273,11 @@ const confirmRejection = async () => {
                                                 <Link :href="route('event-projects.show', eventProject.id)">
                                                     <PrimaryButton class="mr-2">View</PrimaryButton>
                                                 </Link>
-                                                <Link v-if="eventProject.status == 'planned' && eventProject.user_id == $page.props.auth.user.id && eventProject.cashFlow == null" :href="route('event-projects.edit', eventProject.id)" class="text-indigo-600 hover:text-indigo-900">
+                                                <Link v-if="eventProject.status == 'planned' && eventProject.user_id == user.id && eventProject.cashFlow == null" :href="route('event-projects.edit', eventProject.id)" class="text-indigo-600 hover:text-indigo-900">
                                                     <SecondaryButton class="mr-2">Edit</SecondaryButton>
                                                 </Link>
-                                                <PrimaryButton v-if="eventProject.status == 'planned'" @click="approveEventProject(eventProject.id)" class="mr-2">Approval</PrimaryButton>
-                                                <button v-if="eventProject.status == 'planned'" @click="rejectEventProject(eventProject.id)" class="px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700">Reject</button>
+                                                <PrimaryButton v-if="isVerificator && eventProject.status == 'planned'" @click="approveEventProject(eventProject.id)" class="mr-2">Approval</PrimaryButton>
+                                                <button v-if="isVerificator && eventProject.status == 'planned'" @click="rejectEventProject(eventProject.id)" class="px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700">Reject</button>
                                             </td>
                                         </tr>
                                     </tbody>
