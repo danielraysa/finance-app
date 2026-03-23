@@ -105,12 +105,12 @@ const getProgressBarColor = (percentage) => {
                             <div class="bg-gray-50 p-4 rounded-lg">
                                 <div class="text-sm text-gray-500">Budget Progress</div>
                                 <div class="text-2xl font-bold text-blue-600">
-                                    {{ budgetOverview.progress_percentage }}%
+                                    {{ budgetOverview.used_percentage }}%
                                 </div>
                                 <div class="mt-2 w-full bg-gray-200 rounded-full h-2.5">
-                                    <div class="h-2.5 rounded-full bg-blue-600" :style="{ width: `${budgetOverview.progress_percentage}%` }"></div>
+                                    <div class="h-2.5 rounded-full bg-blue-600" :style="{ width: `${budgetOverview.used_percentage}%` }"></div>
                                 </div>
-                                <div class="text-xs text-gray-500 mt-1">Time elapsed</div>
+                                <div class="text-xs text-gray-500 mt-1">Used</div>
                             </div>
                         </div>
                     </div>

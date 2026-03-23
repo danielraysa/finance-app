@@ -33,7 +33,9 @@ class BudgetReportController extends Controller
         if ($currentBudget) {
             // Update actual amounts for the current budget
             $this->updateBudgetActualAmounts($currentBudget);
-
+    
+            $totalPlanned = $currentBudget->calculateTotalPlannedAmount();
+            $totalActual = $currentBudget->calculateTotalActualAmount();
             $budgetOverview = [
                 'id' => $currentBudget->id,
                 'name' => $currentBudget->name,
@@ -42,6 +44,7 @@ class BudgetReportController extends Controller
                 'end_date' => $currentBudget->end_date->format('Y-m-d'),
                 'total_planned' => $currentBudget->calculateTotalPlannedAmount(),
                 'total_actual' => $currentBudget->calculateTotalActualAmount(),
+                'used_percentage' => $totalPlanned > 0 ? round(($totalActual / $totalPlanned) * 100, 2) : 0,
                 'progress_percentage' => $this->calculateProgressPercentage($currentBudget),
                 'days_remaining' => $this->calculateDaysRemaining($currentBudget),
             ];
@@ -91,6 +94,9 @@ class BudgetReportController extends Controller
         // Get top spending categories
         $topSpendingCategories = $this->getTopSpendingCategories($budget);
 
+        $totalPlanned = $budget->calculateTotalPlannedAmount();
+        $totalActual = $budget->calculateTotalActualAmount();
+
         return Inertia::render('BudgetReports/Show', [
             'budget' => [
                 'id' => $budget->id,
@@ -99,8 +105,9 @@ class BudgetReportController extends Controller
                 'start_date' => $budget->start_date->format('Y-m-d'),
                 'end_date' => $budget->end_date->format('Y-m-d'),
                 'description' => $budget->description,
-                'total_planned' => $budget->calculateTotalPlannedAmount(),
-                'total_actual' => $budget->calculateTotalActualAmount(),
+                'total_planned' => $totalPlanned,
+                'total_actual' => $totalActual,
+                'used_percentage' => $totalPlanned > 0 ? round(($totalActual / $totalPlanned) * 100, 2) : 0,
                 'progress_percentage' => $this->calculateProgressPercentage($budget),
                 'days_remaining' => $this->calculateDaysRemaining($budget),
             ],
