@@ -24,10 +24,6 @@ const displayedNotifications = computed(() => {
     return props.notifications.slice(0, 5);
 });
 
-const remainingCount = computed(() => {
-    return Math.max(0, props.notifications.length - 5);
-});
-
 const markAllAsRead = async () => {
     try {
         // await fetch('/notifications/mark-all-as-read', {
@@ -100,7 +96,7 @@ const markAllAsRead = async () => {
                     class="text-sm font-medium text-blue-600 hover:text-blue-700 transition ease-in-out duration-150"
                     @click="$emit('close')"
                 >
-                    {{ remainingCount > 0 ? `View all (${props.notifications.length})` : 'View all notifications' }}
+                View all
                 </Link>
             </div>
         </div>

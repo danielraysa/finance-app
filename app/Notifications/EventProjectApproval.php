@@ -37,9 +37,9 @@ class EventProjectApproval extends Notification
         $user = User::find($this->eventProject->verified_by);
         return new BroadcastMessage([
             'link' => route('event-projects.show', $this->eventProject->id),
-            'title' => 'Persetujuan Kegiatan',
+            'title' => 'Kegiatan Disetujui',
             'message' => 'Kegiatan ' . $this->eventProject->event_name . ' yang dibuat sudah disetujui oleh ' . $user->name,
-            'type' => 'success',
+            'status' => 'success',
         ]);
     }
 
@@ -49,7 +49,7 @@ class EventProjectApproval extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Event Project Approval')
+            ->subject('Kegiatan Disetujui')
             ->markdown('mail.event-approved', ['eventProject' => $this->eventProject]);
     }
 

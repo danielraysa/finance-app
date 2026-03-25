@@ -39,7 +39,7 @@ class EventProjectRejected extends Notification
             'link' => route('event-projects.show', $this->eventProject->id),
             'title' => 'Penolakan Kegiatan',
             'message' => 'Kegiatan ' . $this->eventProject->event_name . ' yang dibuat telah ditolak oleh ' . $user->name,
-            'type' => 'error',
+            'status' => 'error',
         ]);
     }
 
@@ -49,7 +49,7 @@ class EventProjectRejected extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Event Project Rejection')
+            ->subject('Kegiatan Ditolak')
             ->markdown('mail.event-rejected', ['eventProject' => $this->eventProject, 'rejectionReason' => $this->rejectionReason]);
     }
 
@@ -63,7 +63,7 @@ class EventProjectRejected extends Notification
         $user = User::find($this->eventProject->verified_by);
         return [
             'link' => route('event-projects.show', $this->eventProject->id),
-            'title' => 'Penolakan Kegiatan',
+            'title' => 'Kegiatan Ditolak',
             'message' => 'Kegiatan ' . $this->eventProject->event_name . ' yang dibuat telah ditolak oleh ' . $user->name,
             'reason' => $this->rejectionReason,
         ];

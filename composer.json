@@ -12,6 +12,7 @@
         "laravel/octane": "^2.13",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.8",
+        "pusher/pusher-php-server": "^7.2",
         "spatie/laravel-activitylog": "^4.11",
         "spatie/laravel-backup": "^9.3",
         "spatie/laravel-permission": "^6.24",

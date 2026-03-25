@@ -206,6 +206,12 @@ class EventProjectController extends Controller
                 $eventProject->attachment = $request->file('attachment')->store('attachments', 'public');
             }
 
+            if ($eventProject->status !== 'approved') {
+                // reset verified_by and verified_date
+                $eventProject->verified_by = null;
+                $eventProject->verified_date = null;
+                $eventProject->rejection_reason = null;
+            }
             $eventProject->event_name = $validated['event_name'];
             $eventProject->event_date = $validated['event_date'];
             $eventProject->location = $validated['location'] ?? null;
@@ -269,6 +275,7 @@ class EventProjectController extends Controller
                 $detail->approved_amount = $detail->allocated_amount;
                 $detail->save();
             }
+
             // send notification or email if needed
             $user = User::find($eventProject->user_id);
             Notification::send($user, new EventProjectApproval($eventProject));
@@ -294,9 +301,6 @@ class EventProjectController extends Controller
             $eventProject->verified_by = Auth::id();
             $eventProject->verified_date = now();
             $eventProject->save();
-
-            // Broadcast event
-            broadcast(new EventProjectStatusUpdated($eventProject));
 
             // Send notification to the project creator
             $user = User::find($eventProject->user_id);

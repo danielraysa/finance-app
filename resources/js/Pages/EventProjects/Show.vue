@@ -1,11 +1,15 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
+const page = usePage();
 const props = defineProps({
     eventProject: Object
 });
+
+const user = computed(() => page.props.auth.user);
+const isVerificator = computed(() => user.value?.roles?.map((role) => role.name).includes('verificator'));
 
 const formatDate = (dateString) => {
     if (!dateString) return '-';
@@ -33,6 +37,7 @@ const getStatusBadgeClass = (status) => {
         'planned': 'bg-yellow-100 text-yellow-800',
         'approved': 'bg-green-100 text-green-800',
         'completed': 'bg-blue-100 text-blue-800',
+        'rejected': 'bg-red-100 text-red-800',
         'cancelled': 'bg-red-100 text-red-800'
     };
     return classes[status] || 'bg-gray-100 text-gray-800';
@@ -81,8 +86,8 @@ const generateCashFlow = (id) => {
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ eventProject.event_name }}</h2>
                 <div class="flex space-x-2">
                     <Link :href="route('event-projects.index')" class="px-4 py-2 bg-gray-600 text-white text-sm rounded-md hover:bg-gray-700">Back to List</Link>
-                    <Link v-if="!['approved', 'completed'].includes(eventProject.status)" :href="route('event-projects.edit', eventProject.id)" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700">Edit</Link>
-                    <button v-if="!['approved', 'completed'].includes(eventProject.status)" @click="deleteEventProject" class="px-4 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700">Delete</button>
+                    <Link v-if="user.id === eventProject.user_id && !['approved', 'completed'].includes(eventProject.status)" :href="route('event-projects.edit', eventProject.id)" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700">Edit</Link>
+                    <button v-if="user.id === eventProject.user_id && !['approved', 'completed'].includes(eventProject.status)" @click="deleteEventProject" class="px-4 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700">Delete</button>
                     <!-- generate cash flow if approved/completed -->
                     <Link v-if="['approved', 'completed'].includes(eventProject.status) && !eventProject.cash_flow"  @click="generateCashFlow(eventProject.id)"  :disabled="generated" class="px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700">Generate Cash Flow</Link>
                     <div v-else-if="eventProject.cash_flow" class="px-4 py-2 bg-green-100 text-green-800 text-sm rounded-md">
@@ -110,6 +115,10 @@ const generateCashFlow = (id) => {
                                 <span :class="['inline-block px-3 py-1 rounded-full text-sm font-medium', getStatusBadgeClass(eventProject.status)]">
                                     {{ eventProject.status.charAt(0).toUpperCase() + eventProject.status.slice(1) }}
                                 </span>
+                                <div v-if="eventProject.rejection_reason" class="mt-2">
+                                    <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Alasan</label>
+                                    <p class="text-gray-900">{{ eventProject.rejection_reason || '-' }}</p>
+                                </div>
                             </div>
 
                             <!-- Location -->
