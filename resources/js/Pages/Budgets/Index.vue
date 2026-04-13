@@ -227,28 +227,22 @@ watch(
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex space-x-2">
-                                                <Link
-                                                    :href="route('budgets.show', budget.id)"
-                                                    class="text-indigo-600 hover:text-indigo-900"
-                                                >
-                                                    View
+                                                <Link :href="route('budgets.show', budget.id)">
+                                                    <button class="transition ease-in-out duration-150 tracking-widest px-4 py-2 text-sm text-white rounded-md bg-indigo-600 hover:bg-indigo-700">
+                                                        View
+                                                    </button>
                                                 </Link>
-                                                <Link
-                                                    :href="route('budgets.edit', budget.id)"
-                                                    class="text-amber-600 hover:text-amber-900"
-                                                >
-                                                    Edit
+                                                <Link :href="route('budgets.edit', budget.id)">
+                                                    <button class="transition ease-in-out duration-150 tracking-widest px-4 py-2 text-sm text-white rounded-md bg-amber-600 hover:bg-amber-700">
+                                                        Edit
+                                                    </button>
                                                 </Link>
-                                                <Link
-                                                    :href="route('budget-reports.show', budget.id)"
-                                                    class="text-green-600 hover:text-green-900"
-                                                >
-                                                    Report
+                                                <Link :href="route('budget-reports.show', budget.id)">
+                                                    <button class="transition ease-in-out duration-150 tracking-widest px-4 py-2 text-sm text-white rounded-md bg-green-600 hover:bg-green-700">
+                                                        Report
+                                                    </button>
                                                 </Link>
-                                                <button
-                                                    @click.prevent="confirmDelete(budget)"
-                                                    class="text-red-600 hover:text-red-900"
-                                                >
+                                                <button @click.prevent="confirmDelete(budget)" class="transition ease-in-out duration-150 tracking-widest px-4 py-2 text-sm text-white rounded-md bg-red-600 hover:bg-red-700">
                                                     Delete
                                                 </button>
                                             </div>
