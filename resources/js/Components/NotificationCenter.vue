@@ -39,7 +39,7 @@ const getNotificationClass = (type) => {
             <div
                 v-for="notification in notifications"
                 :key="notification.id"
-                :class="getNotificationClass(notification.status)"
+                :class="getNotificationClass(notification.type || notification.status)"
                 class="px-4 py-3 rounded-lg shadow-lg flex items-center justify-between"
             >
                 <div>

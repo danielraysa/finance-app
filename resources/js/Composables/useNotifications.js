@@ -16,21 +16,19 @@ export function useNotifications() {
             });
 
         // Listen for broadcast events. This event is broadcast as `event-updated`.
-        /* window.Echo.private(`App.Models.User.${userId}`)
+        window.Echo.private(`App.Models.User.${userId}`)
             .listen('.event-updated', (payload) => {
                 console.log('EventProjectStatusUpdated payload', payload);
 
                 const status = payload.status;
                 const title = payload.title || 'Event project updated';
 
-                let message = `Status changed to ${status}`;
+                let message = payload.message || `Status changed to ${status}`;
                 let type = 'info';
 
                 if (status === 'approved') {
-                    message = 'Your event project has been approved by the verifier.';
                     type = 'success';
                 } else if (status === 'rejected') {
-                    message = 'Your event project has been rejected by the verifier.';
                     type = 'error';
                 }
 
@@ -39,7 +37,7 @@ export function useNotifications() {
                     message,
                     type,
                 });
-            }); */
+            });
     };
 
     const addNotification = (notification) => {
