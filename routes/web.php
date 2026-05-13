@@ -28,15 +28,23 @@ use Inertia\Inertia;
 */
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
+    return redirect()->route('login');
+    /* return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
-    ]);
+    ]); */
 });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/test-notification', function () {
+    $eventProject = \App\Models\EventProject::first();
+    $user = \App\Models\User::find($eventProject->user_id);
+    $user->notify(new \App\Notifications\EventProjectRejected($eventProject, 'Alasan penolakan...'));
+    return 'Notification sent!';
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

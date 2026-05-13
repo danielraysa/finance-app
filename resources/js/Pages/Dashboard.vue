@@ -90,7 +90,7 @@ const formatDate = (dateString) => {
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6">
                             <h3 class="text-lg font-medium text-gray-900">Total Balance</h3>
-                            <p class="mt-2 text-3xl font-bold text-indigo-600">{{ formatCurrency(summary.totalCashBalance) }}</p>
+                            <p class="mt-2 lg:text-2xl 2xl:text-3xl text-3xl font-bold text-indigo-600">{{ formatCurrency(summary.totalCashBalance) }}</p>
                             <p class="mt-1 text-sm text-gray-500">Current cash balance</p>
                         </div>
                     </div>
@@ -99,7 +99,7 @@ const formatDate = (dateString) => {
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6">
                             <h3 class="text-lg font-medium text-gray-900">Total Income</h3>
-                            <p class="mt-2 text-3xl font-bold text-green-600">{{ formatCurrency(summary.totalIncome) }}</p>
+                            <p class="mt-2 lg:text-2xl 2xl:text-3xl text-3xl font-bold text-green-600">{{ formatCurrency(summary.totalIncome) }}</p>
                             <p class="mt-1 text-sm text-gray-500">All time income</p>
                         </div>
                     </div>
@@ -108,7 +108,7 @@ const formatDate = (dateString) => {
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6">
                             <h3 class="text-lg font-medium text-gray-900">Total Expense</h3>
-                            <p class="mt-2 text-3xl font-bold text-red-600">{{ formatCurrency(summary.totalExpense) }}</p>
+                            <p class="mt-2 lg:text-2xl 2xl:text-3xl text-3xl font-bold text-red-600">{{ formatCurrency(summary.totalExpense) }}</p>
                             <p class="mt-1 text-sm text-gray-500">All time expense</p>
                         </div>
                     </div>
@@ -117,7 +117,7 @@ const formatDate = (dateString) => {
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6">
                             <h3 class="text-lg font-medium text-gray-900">Net Balance</h3>
-                            <p class="mt-2 text-3xl font-bold" :class="summary.netBalance >= 0 ? 'text-green-600' : 'text-red-600'">{{ formatCurrency(summary.netBalance) }}</p>
+                            <p class="mt-2 lg:text-2xl 2xl:text-3xl text-3xl font-bold" :class="summary.netBalance >= 0 ? 'text-green-600' : 'text-red-600'">{{ formatCurrency(summary.netBalance) }}</p>
                             <p class="mt-1 text-sm text-gray-500">Income - Expense</p>
                         </div>
                     </div>
@@ -131,16 +131,16 @@ const formatDate = (dateString) => {
                             <div class="p-6">
                                 <div class="flex justify-between items-center mb-4">
                                     <h3 class="text-lg font-medium text-gray-900">Cash Accounts</h3>
-                                    <Link :href="route('cash-accounts.create')" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    <!-- <Link :href="route('cash-accounts.create')" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                                         Add New
-                                    </Link>
+                                    </Link> -->
                                 </div>
 
                                 <div v-if="cashAccounts.length === 0" class="text-center py-4">
                                     <p class="text-gray-500">No cash accounts found</p>
-                                    <Link :href="route('cash-accounts.create')" class="mt-2 inline-block text-indigo-600 hover:text-indigo-800">
+                                    <!-- <Link :href="route('cash-accounts.create')" class="mt-2 inline-block text-indigo-600 hover:text-indigo-800">
                                         Create your first cash account
-                                    </Link>
+                                    </Link> -->
                                 </div>
 
                                 <ul v-else class="divide-y divide-gray-200">
