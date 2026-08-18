@@ -72,6 +72,9 @@ Route::middleware('auth')->group(function () {
 
     // Reports Route
     Route::get('/reports', [DashboardController::class, 'reports'])->name('reports');
+    Route::get('/reports/profit-loss', [DashboardController::class, 'profitLoss'])->name('reports.profit-loss');
+    Route::get('/reports/balance-sheet', [DashboardController::class, 'balanceSheet'])->name('reports.balance-sheet');
+    Route::get('/reports/cash-flow', [DashboardController::class, 'cashFlow'])->name('reports.cash-flow');
 
     Route::resource('event-projects', EventProjectController::class);
     Route::post('/event-projects/{id}/approval', [EventProjectController::class, 'approval'])->name('event-projects.approval');

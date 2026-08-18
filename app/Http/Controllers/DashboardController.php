@@ -142,4 +142,136 @@ class DashboardController extends Controller
             'categoryBreakdown' => $categoryBreakdown
         ]);
     }
+
+    public function profitLoss(Request $request)
+    {
+        $filters = $this->buildReportFilters($request);
+        $transactions = $this->filteredTransactions($filters);
+
+        $totalIncome = (float) $transactions->where('type', 'income')->sum('amount');
+        $totalExpense = (float) $transactions->where('type', 'expense')->sum('amount');
+
+        return Inertia::render('Reports/ProfitLoss', [
+            'filters' => $filters,
+            'cashAccounts' => CashAccount::all(),
+            'summary' => [
+                'totalIncome' => $totalIncome,
+                'totalExpense' => $totalExpense,
+                'netProfit' => $totalIncome - $totalExpense,
+            ],
+            'incomeBreakdown' => $this->buildCategoryBreakdown($transactions, 'income'),
+            'expenseBreakdown' => $this->buildCategoryBreakdown($transactions, 'expense'),
+        ]);
+    }
+
+    public function balanceSheet(Request $request)
+    {
+        $filters = $this->buildReportFilters($request);
+        $cashAccounts = CashAccount::query()
+            ->when($filters['cashAccountId'], fn ($query) => $query->where('id', $filters['cashAccountId']))
+            ->get();
+
+        $totalAssets = (float) $cashAccounts->sum('current_balance');
+        $liabilities = 0.0;
+        $equity = max($totalAssets - $liabilities, 0);
+
+        return Inertia::render('Reports/BalanceSheet', [
+            'filters' => $filters,
+            'cashAccounts' => CashAccount::all(),
+            'summary' => [
+                'totalAssets' => $totalAssets,
+                'totalLiabilities' => $liabilities,
+                'totalEquity' => $equity,
+                'netWorth' => $equity,
+            ],
+            'assets' => $cashAccounts->map(function ($account) {
+                return [
+                    'id' => $account->id,
+                    'name' => $account->name,
+                    'value' => (float) $account->current_balance,
+                ];
+            }),
+        ]);
+    }
+
+    public function cashFlow(Request $request)
+    {
+        $filters = $this->buildReportFilters($request);
+        $transactions = $this->filteredTransactions($filters);
+
+        $cashIn = (float) $transactions->where('type', 'income')->sum('amount');
+        $cashOut = (float) $transactions->where('type', 'expense')->sum('amount');
+
+        return Inertia::render('Reports/CashFlow', [
+            'filters' => $filters,
+            'cashAccounts' => CashAccount::all(),
+            'summary' => [
+                'cashIn' => $cashIn,
+                'cashOut' => $cashOut,
+                'netCashFlow' => $cashIn - $cashOut,
+            ],
+            'cashInTransactions' => $this->buildTransactionBreakdown($transactions, 'income'),
+            'cashOutTransactions' => $this->buildTransactionBreakdown($transactions, 'expense'),
+        ]);
+    }
+
+    private function buildReportFilters(Request $request): array
+    {
+        return [
+            'startDate' => $request->input('start_date', Carbon::now()->startOfMonth()->format('Y-m-d')),
+            'endDate' => $request->input('end_date', Carbon::now()->endOfMonth()->format('Y-m-d')),
+            'cashAccountId' => $request->input('cash_account_id'),
+        ];
+    }
+
+    private function filteredTransactions(array $filters)
+    {
+        $query = Transaction::with(['cashAccount', 'category'])
+            ->whereBetween('transaction_date', [$filters['startDate'], $filters['endDate']])
+            ->latest('transaction_date');
+
+        if ($filters['cashAccountId']) {
+            $query->where('cash_account_id', $filters['cashAccountId']);
+        }
+
+        return $query->get();
+    }
+
+    private function buildCategoryBreakdown($transactions, string $type): array
+    {
+        return $transactions
+            ->where('type', $type)
+            ->groupBy('transaction_category_id')
+            ->map(function ($items) {
+                $category = $items->first()->category;
+
+                return [
+                    'category' => $category ? $category->name : 'Uncategorized',
+                    'color' => $category ? $category->color : '#94a3b8',
+                    'total' => (float) $items->sum('amount'),
+                    'count' => $items->count(),
+                ];
+            })
+            ->sortByDesc('total')
+            ->values()
+            ->all();
+    }
+
+    private function buildTransactionBreakdown($transactions, string $type): array
+    {
+        return $transactions
+            ->where('type', $type)
+            ->map(function ($transaction) {
+                return [
+                    'id' => $transaction->id,
+                    'date' => $transaction->transaction_date->format('Y-m-d'),
+                    'description' => $transaction->description ?? 'No description',
+                    'category' => $transaction->category?->name ?? 'Uncategorized',
+                    'account' => $transaction->cashAccount?->name ?? 'N/A',
+                    'amount' => (float) $transaction->amount,
+                ];
+            })
+            ->values()
+            ->all();
+    }
 }
