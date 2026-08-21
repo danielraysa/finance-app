@@ -65,15 +65,15 @@ const submit = () => {
                                     <InputError class="mt-2" :message="form.errors.transaction_date" />
                                 </div>
                                 <div class="mb-6">
-                                    <InputLabel for="reference_number" value="Reference Number (Optional)" />
+                                    <InputLabel for="reference_number" value="Reference Number" />
                                     <TextInput id="reference_number" type="text" class="mt-1 block w-full" v-model="form.reference_number" />
                                 </div>
-    
+
                                 <div class="mb-6">
                                     <InputLabel for="description" value="Description (Optional)" />
                                     <TextArea id="description" v-model="form.description" rows="2" />
                                 </div>
-    
+
                                 <div class="mb-6">
                                     <InputLabel for="attachment" value="Attachment (Optional)" />
                                     <input id="attachment" type="file" class="mt-1 block w-full text-gray-700" @input="form.attachment = $event.target.files[0]" />

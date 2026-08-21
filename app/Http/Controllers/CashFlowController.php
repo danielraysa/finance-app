@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Formatter;
 use App\Models\CashAccount;
 use App\Models\CashFlow;
 use App\Models\Transaction;
@@ -10,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class CashFlowController extends Controller
@@ -92,6 +94,8 @@ class CashFlowController extends Controller
                 $attachmentPath = $request->file('attachment')->store('attachments', 'public');
             }
 
+            // generate when empty
+            if ($validated['reference_number'] == null) $validated['reference_number'] = Formatter::generateCashFlowReferenceNumber();
             $cashFlow = CashFlow::create([
                 'user_id' => Auth::id(),
                 'transaction_date' => $validated['transaction_date'],
@@ -163,7 +167,11 @@ class CashFlowController extends Controller
 
         $validated = $request->validate([
             'transaction_date' => 'required|date',
-            'reference_number' => 'nullable|string|max:255',
+            'reference_number' => [
+                'string',
+                'max:255',
+                Rule::unique('cash_flows', 'reference_number')->ignore($cashFlow->id),
+            ],
             'description' => 'nullable|string',
             'attachment' => 'nullable|file',
             'transactions' => 'required|array|min:1',

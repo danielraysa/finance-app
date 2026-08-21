@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\RolesEnum;
+use App\Helpers\Formatter;
 use App\Models\EventProject;
 use App\Models\BudgetItem;
 use App\Models\CashAccount;
@@ -340,7 +341,7 @@ class EventProjectController extends Controller
         // generate reference number
         $now = now();
         $number = CashFlow::whereYear('created_at', $now->year)->count() + 1;
-        $referenceNumber = str_pad($number, 3, '0', STR_PAD_LEFT) . '/JATIM/'. $now->format('m') . '/' . $now->year;
+        $referenceNumber = Formatter::generateCashFlowReferenceNumber();
 
         // Create a new CashFlow based on the EventProject details
         $cashFlow = CashFlow::create([

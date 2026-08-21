@@ -70,7 +70,7 @@ const submit = () => {
                                 </div>
 
                                 <div class="mb-6">
-                                    <InputLabel for="reference_number" value="Reference Number (Optional)" />
+                                    <InputLabel for="reference_number" value="Reference Number" />
                                     <TextInput id="reference_number" type="text" class="mt-1 block w-full" v-model="form.reference_number" />
                                 </div>
 
