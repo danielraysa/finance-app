@@ -96,7 +96,7 @@ const deleteUser = (id) => {
                 </div>
 
                 <!-- Table -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="bg-white overflow-x-scroll shadow-sm sm:rounded-lg">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
@@ -150,12 +150,14 @@ const deleteUser = (id) => {
                                     {{ new Date(user.created_at).toLocaleDateString() }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                                    <Link :href="route('users.edit', user.id)" class="text-indigo-600 hover:text-indigo-900">
-                                        Edit
+                                    <Link :href="route('users.edit', user.id)">
+                                        <button class="transition ease-in-out duration-150 px-4 py-2 text-sm text-white rounded-md bg-indigo-600 hover:bg-indigo-700">
+                                            View
+                                        </button>
                                     </Link>
                                     <button
                                         @click="deleteUser(user.id)"
-                                        class="text-red-600 hover:text-red-900"
+                                        class="transition ease-in-out duration-150 px-4 py-2 text-sm text-white rounded-md bg-red-600 hover:bg-red-700"
                                     >
                                         Delete
                                     </button>

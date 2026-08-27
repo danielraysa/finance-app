@@ -8,6 +8,7 @@ import TextArea from '@/Components/TextArea.vue';
 import InputError from '@/Components/InputError.vue';
 import { useForm } from '@inertiajs/vue3';
 import { Head, Link } from '@inertiajs/vue3';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 
 const props = defineProps({
     role: Object,
@@ -97,8 +98,8 @@ const canEdit = () => {
                         </div>
                     </form>
                     <div v-else>
-                        <Link :href="route('roles.index')" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
-                            Back
+                        <Link :href="route('roles.index')">
+                            <SecondaryButton>Cancel</SecondaryButton>
                         </Link>
                     </div>
                 </div>
