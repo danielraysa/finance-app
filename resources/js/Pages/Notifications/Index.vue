@@ -2,11 +2,12 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import NotificationItem from '@/Components/NotificationItem.vue';
+import Pagination from '@/Components/Pagination.vue';
 import { ref, computed } from 'vue';
 
 const props = defineProps({
     notifications: {
-        type: Array,
+        type: Object,
         required: true,
     },
     unreadCount: {
@@ -19,9 +20,9 @@ const filterType = ref('all');
 
 const filteredNotifications = computed(() => {
     if (filterType.value === 'unread') {
-        return props.notifications.filter(n => n.read_at === null);
+        return props.notifications.data.filter(n => n.read_at === null);
     }
-    return props.notifications;
+    return props.notifications.data;
 });
 
 const markAllAsRead = async () => {
@@ -48,15 +49,16 @@ const deleteAllNotifications = async () => {
     }
 
     try {
-        for (const notification of props.notifications) {
-            await fetch(route('notifications.destroy', notification.id), {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                },
-            });
+        const response = await fetch(route('notifications.destroy-all'), {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+            },
+        });
+
+        if (response.ok) {
+            window.location.reload();
         }
-        window.location.reload();
     } catch (error) {
         console.error('Error deleting notifications:', error);
     }
@@ -79,7 +81,7 @@ const deleteAllNotifications = async () => {
                         Mark all as read
                     </button>
                     <button
-                        v-if="notifications.length > 0"
+                        v-if="notifications.total > 0"
                         @click="deleteAllNotifications"
                         class="px-4 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition"
                     >
@@ -105,8 +107,8 @@ const deleteAllNotifications = async () => {
                                 ]"
                             >
                                 All
-                                <span v-if="notifications.length > 0" class="ml-2 px-2 py-1 text-xs bg-gray-100 rounded-full">
-                                    {{ notifications.length }}
+                                <span v-if="notifications.total > 0" class="ml-2 px-2 py-1 text-xs bg-gray-100 rounded-full">
+                                    {{ notifications.total }}
                                 </span>
                             </button>
                             <button
@@ -157,6 +159,10 @@ const deleteAllNotifications = async () => {
                             :notification="notification"
                             @notification-click="() => window.location.reload()"
                         />
+                    </div>
+
+                    <div v-if="filterType === 'all'" class="border-t border-gray-100 px-6 py-4">
+                        <Pagination :links="notifications.links" />
                     </div>
                 </div>
             </div>

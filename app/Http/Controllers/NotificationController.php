@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
 class NotificationController extends Controller
@@ -16,7 +17,8 @@ class NotificationController extends Controller
 
         $notifications = $user->notifications()
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         $unreadCount = $user->unreadNotifications()->count();
 
@@ -64,7 +66,7 @@ class NotificationController extends Controller
 
         $unreadCount = $user->unreadNotifications()->count();
 
-        return response()->json([
+        return Redirect::back()->with([
             'success' => true,
             'notification' => $notification,
             'unreadCount' => $unreadCount,
@@ -79,7 +81,20 @@ class NotificationController extends Controller
         $user = $request->user();
         $user->unreadNotifications->markAsRead();
 
-        return response()->json([
+        return Redirect::back()->with([
+            'success' => true,
+            'unreadCount' => 0,
+        ]);
+    }
+
+    /**
+     * Delete all notifications for the authenticated user.
+     */
+    public function destroyAll(Request $request)
+    {
+        $request->user()->notifications()->delete();
+
+        return Redirect::back()->with([
             'success' => true,
             'unreadCount' => 0,
         ]);
