@@ -276,8 +276,8 @@ const confirmRejection = async () => {
                                                 <Link v-if="eventProject.status == 'planned' && eventProject.user_id == user.id && eventProject.cashFlow == null" :href="route('event-projects.edit', eventProject.id)" class="text-indigo-600 hover:text-indigo-900">
                                                     <SecondaryButton class="mr-2">Edit</SecondaryButton>
                                                 </Link>
-                                                <button v-if="isVerificator && eventProject.status == 'planned'" @click="approveEventProject(eventProject.id)" class="transition ease-in-out duration-150 tracking-widest px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 mr-2">Approve</button>
-                                                <button v-if="isVerificator && eventProject.status == 'planned'" @click="rejectEventProject(eventProject.id)" class="transition ease-in-out duration-150 tracking-widest px-4 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700">Reject</button>
+                                                <button v-if="isVerificator && eventProject.status == 'planned'" @click="approveEventProject(eventProject.id)" class="transition ease-in-out duration-150 px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 mr-2">Approve</button>
+                                                <button v-if="isVerificator && eventProject.status == 'planned'" @click="rejectEventProject(eventProject.id)" class="transition ease-in-out duration-150 px-4 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700">Reject</button>
                                             </td>
                                         </tr>
                                     </tbody>

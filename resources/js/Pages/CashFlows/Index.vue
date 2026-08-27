@@ -27,7 +27,7 @@ const applyFilters = () => {
     if (dateTo.value) params.append('date_to', dateTo.value);
     if (sortBy.value) params.append('sort_by', sortBy.value);
     if (sortDir.value) params.append('sort_dir', sortDir.value);
-    
+
     const url = route('cash-flows.index') + (params.toString() ? ('?' + params.toString()) : '');
     window.location.href = url;
 };
@@ -92,7 +92,7 @@ const formatDate = (dateString) => {
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
                                         <input v-model="search" @input="debouncedSubmit" type="text" placeholder="Reference, description..." class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
                                     </div>
-                                    
+
                                     <!-- Transaction Type Filter -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
@@ -102,30 +102,30 @@ const formatDate = (dateString) => {
                                             <option value="expense">Expense</option>
                                         </select>
                                     </div>
-                                    
+
                                     <!-- Date From -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
                                         <input v-model="dateFrom" @change="applyFilters" type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
                                     </div>
-                                    
+
                                     <!-- Date To -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
                                         <input v-model="dateTo" @change="applyFilters" type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
                                     </div>
-                                    
+
                                     <!-- Sort By -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
                                         <select v-model="sortBy" @change="applyFilters" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                            <option value="created_at">Created Date</option>
                                             <option value="transaction_date">Transaction Date</option>
                                             <option value="reference_number">Reference Number</option>
-                                            <option value="created_at">Created Date</option>
                                         </select>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Action Buttons -->
                                 <div class="flex justify-between items-center">
                                     <div class="flex space-x-2">

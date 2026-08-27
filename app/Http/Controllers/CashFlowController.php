@@ -46,7 +46,7 @@ class CashFlowController extends Controller
         }
 
         // Sorting
-        $sortBy = $request->query('sort_by', 'transaction_date');
+        $sortBy = $request->query('sort_by', 'created_at');
         $sortDir = $request->query('sort_dir', 'desc');
         $query->orderBy($sortBy, $sortDir);
 

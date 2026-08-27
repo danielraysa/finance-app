@@ -101,9 +101,9 @@ const showingNavigationDropdown = ref(false);
                                     <template #content>
                                         <DropdownLink :href="route('reports')"> Overall </DropdownLink>
                                         <DropdownLink :href="route('reports.profit-loss')"> Laporan Laba Rugi </DropdownLink>
-                                        <DropdownLink :href="route('reports.balance-sheet')"> Neraca </DropdownLink>
+                                        <!-- <DropdownLink :href="route('reports.balance-sheet')"> Neraca </DropdownLink> -->
                                         <DropdownLink :href="route('reports.cash-flow')"> Laporan Arus Kas </DropdownLink>
-                                        <DropdownLink :href="route('budget-reports.index')"> Budget Reports </DropdownLink>
+                                        <DropdownLink :href="route('budget-reports.index')"> Laporan Budget </DropdownLink>
                                     </template>
                                 </Dropdown>
                                 <!-- <NavLink :href="route('budget-reports.index')" :active="route().current('budget-reports.*')">
@@ -227,17 +227,17 @@ const showingNavigationDropdown = ref(false);
                         <ResponsiveNavLink :href="route('reports.profit-loss')" :active="route().current('reports.profit-loss')">
                             Laporan Laba Rugi
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('reports.balance-sheet')" :active="route().current('reports.balance-sheet')">
+                        <!-- <ResponsiveNavLink :href="route('reports.balance-sheet')" :active="route().current('reports.balance-sheet')">
                             Neraca
-                        </ResponsiveNavLink>
+                        </ResponsiveNavLink> -->
                         <ResponsiveNavLink :href="route('reports.cash-flow')" :active="route().current('reports.cash-flow')">
                             Laporan Arus Kas
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('budget-reports.index')" :active="route().current('budget-reports.*')">
-                            Budget Reports
+                            Laporan Budget
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('reports')" :active="route().current('reports')">
-                            Reports
+                            Overall Reports
                         </ResponsiveNavLink>
                     </div>
 
