@@ -100,7 +100,7 @@ const applyFilters = () => {
                         <ul v-else class="space-y-3">
                             <li v-for="item in cashOutTransactions" :key="item.id" class="flex justify-between border-b pb-2">
                                 <div>
-                                    <p class="font-medium">{{ item.description }}</p>
+                                    <p class="font-medium">{{ item.reference_number ?? item.description }}</p>
                                     <p class="text-xs text-gray-500">{{ item.category }} • {{ item.account }}</p>
                                 </div>
                                 <span class="font-semibold text-red-600">{{ formatCurrency(item.amount) }}</span>

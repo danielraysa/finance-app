@@ -226,7 +226,7 @@ class DashboardController extends Controller
 
     private function filteredTransactions(array $filters)
     {
-        $query = Transaction::with(['cashAccount', 'category'])
+        $query = Transaction::with(['cashAccount', 'category', 'cashFlow'])
             ->whereBetween('transaction_date', [$filters['startDate'], $filters['endDate']])
             ->latest('transaction_date');
 
@@ -265,6 +265,8 @@ class DashboardController extends Controller
                 return [
                     'id' => $transaction->id,
                     'date' => $transaction->transaction_date->format('Y-m-d'),
+                    'cash_flow_reference' => $transaction->cashFlow->reference_number,
+                    'reference_number' => $transaction->reference_number,
                     'description' => $transaction->description ?? 'No description',
                     'category' => $transaction->category?->name ?? 'Uncategorized',
                     'account' => $transaction->cashAccount?->name ?? 'N/A',
