@@ -67,6 +67,21 @@ const formatCurrency = (value) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value);
 };
 
+const getStatusClasses = (status) => {
+    const normalized = (status || '').toLowerCase();
+
+    const variants = {
+        planned: 'bg-blue-100 text-blue-800 border border-blue-200',
+        approved: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+        completed: 'bg-violet-100 text-violet-800 border border-violet-200',
+        cancelled: 'bg-red-100 text-red-800 border border-red-200',
+        rejected: 'bg-rose-100 text-rose-800 border border-rose-200',
+        pending: 'bg-yellow-100 text-yellow-800 border border-yellow-200',
+    };
+
+    return variants[normalized] || 'bg-gray-100 text-gray-800 border border-gray-200';
+};
+
 const confirmingApproval = ref(false);
 const approvingId = ref(null);
 const approvingLoading = ref(false);
@@ -266,7 +281,11 @@ const confirmRejection = async () => {
                                                 <p class="text-sm text-gray-500">{{ formatDate(eventProject.event_date) }}</p>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ eventProject.location || '-' }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ eventProject.status }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <span :class="['inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize', getStatusClasses(eventProject.status)]">
+                                                    {{ eventProject.status || 'unknown' }}
+                                                </span>
+                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ formatCurrency(eventProject.details_sum_allocated_amount || 0) }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatDate(eventProject.created_at) }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
