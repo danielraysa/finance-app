@@ -49,4 +49,34 @@ class FinancialReportsTest extends TestCase
             $page->component('Reports/CashFlow')
         );
     }
+
+    public function test_financial_reports_can_be_exported_as_csv(): void
+    {
+        $user = User::factory()->create();
+
+        foreach (['profit-loss', 'balance-sheet', 'cash-flow'] as $report) {
+            $response = $this->actingAs($user)->get(route('reports.' . $report . '.export', [
+                'format' => 'csv',
+            ]));
+
+            $response->assertOk();
+            $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+            $response->assertHeader('Content-Disposition');
+        }
+    }
+
+    public function test_financial_reports_can_be_exported_as_pdf(): void
+    {
+        $user = User::factory()->create();
+
+        foreach (['profit-loss', 'balance-sheet', 'cash-flow'] as $report) {
+            $response = $this->actingAs($user)->get(route('reports.' . $report . '.export', [
+                'format' => 'pdf',
+            ]));
+
+            $response->assertOk();
+            $response->assertHeader('Content-Type', 'application/pdf');
+            $response->assertHeader('Content-Disposition');
+        }
+    }
 }

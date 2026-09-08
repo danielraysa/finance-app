@@ -24,6 +24,13 @@ const applyFilters = () => {
         cash_account_id: cashAccountId.value || null,
     }, { preserveState: true, replace: true });
 };
+
+const exportUrl = (format) => route('reports.balance-sheet.export', {
+    format,
+    start_date: startDate.value,
+    end_date: endDate.value,
+    cash_account_id: cashAccountId.value || undefined,
+});
 </script>
 
 <template>
@@ -37,6 +44,17 @@ const applyFilters = () => {
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex flex-col md:flex-row md:items-start md:justify-between border-b border-gray-200 pb-4 mb-5">
+                        <div>
+                            <p class="text-sm font-semibold tracking-wide text-green-800 uppercase">Laporan Keuangan</p>
+                            <h3 class="text-2xl font-bold text-gray-900">Neraca</h3>
+                            <p class="text-sm text-gray-500 mt-1">Posisi per {{ endDate }}</p>
+                        </div>
+                        <div class="flex gap-2 mt-4 md:mt-0">
+                            <a :href="exportUrl('csv')" class="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">CSV</a>
+                            <a :href="exportUrl('pdf')" class="px-3 py-2 text-sm bg-green-800 text-white rounded-md hover:bg-green-900">PDF</a>
+                        </div>
+                    </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Tanggal Mulai</label>

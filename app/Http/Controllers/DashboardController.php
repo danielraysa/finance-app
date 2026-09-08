@@ -215,6 +215,107 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function exportProfitLoss(Request $request, string $format)
+    {
+        $filters = $this->buildReportFilters($request);
+        $transactions = $this->filteredTransactions($filters);
+        $data = [
+            'filters' => $filters,
+            'summary' => [
+                'totalIncome' => (float) $transactions->where('type', 'income')->sum('amount'),
+                'totalExpense' => (float) $transactions->where('type', 'expense')->sum('amount'),
+            ],
+            'incomeBreakdown' => $this->buildCategoryBreakdown($transactions, 'income'),
+            'expenseBreakdown' => $this->buildCategoryBreakdown($transactions, 'expense'),
+        ];
+        $data['summary']['netProfit'] = $data['summary']['totalIncome'] - $data['summary']['totalExpense'];
+
+        return $this->exportReport($format, 'profit-loss', $data, function ($handle) use ($data) {
+            fputcsv($handle, ['LAPORAN LABA RUGI']);
+            fputcsv($handle, ['Periode', $data['filters']['startDate'], $data['filters']['endDate']]);
+            fputcsv($handle, []);
+            fputcsv($handle, ['Pendapatan', 'Jumlah']);
+            foreach ($data['incomeBreakdown'] as $item) fputcsv($handle, [$item['category'], $item['total']]);
+            fputcsv($handle, ['Total Pendapatan', $data['summary']['totalIncome']]);
+            fputcsv($handle, []);
+            fputcsv($handle, ['Beban', 'Jumlah']);
+            foreach ($data['expenseBreakdown'] as $item) fputcsv($handle, [$item['category'], $item['total']]);
+            fputcsv($handle, ['Total Beban', $data['summary']['totalExpense']]);
+            fputcsv($handle, ['Laba/Rugi Bersih', $data['summary']['netProfit']]);
+        });
+    }
+
+    public function exportBalanceSheet(Request $request, string $format)
+    {
+        $filters = $this->buildReportFilters($request);
+        $accounts = CashAccount::query()
+            ->when($filters['cashAccountId'], fn ($query) => $query->where('id', $filters['cashAccountId']))
+            ->get();
+        $data = [
+            'filters' => $filters,
+            'assets' => $accounts->map(fn ($account) => ['name' => $account->name, 'value' => (float) $account->current_balance])->all(),
+            'summary' => ['totalAssets' => (float) $accounts->sum('current_balance'), 'totalLiabilities' => 0.0],
+        ];
+        $data['summary']['totalEquity'] = $data['summary']['totalAssets'] - $data['summary']['totalLiabilities'];
+
+        return $this->exportReport($format, 'balance-sheet', $data, function ($handle) use ($data) {
+            fputcsv($handle, ['NERACA']);
+            fputcsv($handle, ['Posisi per', $data['filters']['endDate']]);
+            fputcsv($handle, []);
+            fputcsv($handle, ['Aset', 'Jumlah']);
+            foreach ($data['assets'] as $item) fputcsv($handle, [$item['name'], $item['value']]);
+            fputcsv($handle, ['Total Aset', $data['summary']['totalAssets']]);
+            fputcsv($handle, ['Total Kewajiban', $data['summary']['totalLiabilities']]);
+            fputcsv($handle, ['Total Modal', $data['summary']['totalEquity']]);
+        });
+    }
+
+    public function exportCashFlow(Request $request, string $format)
+    {
+        $filters = $this->buildReportFilters($request);
+        $transactions = $this->filteredTransactions($filters);
+        $data = [
+            'filters' => $filters,
+            'cashInTransactions' => $this->buildTransactionBreakdown($transactions, 'income'),
+            'cashOutTransactions' => $this->buildTransactionBreakdown($transactions, 'expense'),
+            'summary' => [
+                'cashIn' => (float) $transactions->where('type', 'income')->sum('amount'),
+                'cashOut' => (float) $transactions->where('type', 'expense')->sum('amount'),
+            ],
+        ];
+        $data['summary']['netCashFlow'] = $data['summary']['cashIn'] - $data['summary']['cashOut'];
+
+        return $this->exportReport($format, 'cash-flow', $data, function ($handle) use ($data) {
+            fputcsv($handle, ['LAPORAN ARUS KAS']);
+            fputcsv($handle, ['Periode', $data['filters']['startDate'], $data['filters']['endDate']]);
+            fputcsv($handle, []);
+            fputcsv($handle, ['Tanggal', 'Uraian', 'Kategori', 'Rekening', 'Masuk', 'Keluar']);
+            foreach (array_merge($data['cashInTransactions'], $data['cashOutTransactions']) as $item) {
+                fputcsv($handle, [$item['date'], $item['description'], $item['category'], $item['account'], $item['amount'], 0]);
+            }
+            fputcsv($handle, ['Total', '', '', '', $data['summary']['cashIn'], $data['summary']['cashOut']]);
+            fputcsv($handle, ['Arus Kas Bersih', $data['summary']['netCashFlow']]);
+        });
+    }
+
+    private function exportReport(string $format, string $report, array $data, callable $csvWriter)
+    {
+        $data['company'] = config('reports');
+        $filename = $report . '-' . $data['filters']['startDate'] . '-to-' . $data['filters']['endDate'];
+
+        if ($format === 'csv') {
+            return response()->streamDownload(function () use ($csvWriter) {
+                $handle = fopen('php://output', 'w');
+                fwrite($handle, "\xEF\xBB\xBF");
+                $csvWriter($handle);
+                fclose($handle);
+            }, $filename . '.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+        }
+
+        $pdf = app('dompdf.wrapper')->loadView('reports.' . $report . '-pdf', $data);
+        return $pdf->download($filename . '.pdf');
+    }
+
     private function buildReportFilters(Request $request): array
     {
         return [

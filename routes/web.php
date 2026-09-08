@@ -75,6 +75,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports/profit-loss', [DashboardController::class, 'profitLoss'])->name('reports.profit-loss');
     Route::get('/reports/balance-sheet', [DashboardController::class, 'balanceSheet'])->name('reports.balance-sheet');
     Route::get('/reports/cash-flow', [DashboardController::class, 'cashFlow'])->name('reports.cash-flow');
+    Route::get('/reports/profit-loss/{format}', [DashboardController::class, 'exportProfitLoss'])
+        ->whereIn('format', ['csv', 'pdf'])->name('reports.profit-loss.export');
+    Route::get('/reports/balance-sheet/{format}', [DashboardController::class, 'exportBalanceSheet'])
+        ->whereIn('format', ['csv', 'pdf'])->name('reports.balance-sheet.export');
+    Route::get('/reports/cash-flow/{format}', [DashboardController::class, 'exportCashFlow'])
+        ->whereIn('format', ['csv', 'pdf'])->name('reports.cash-flow.export');
 
     Route::resource('event-projects', EventProjectController::class);
     Route::post('/event-projects/{id}/approval', [EventProjectController::class, 'approval'])->name('event-projects.approval');
