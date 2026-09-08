@@ -182,7 +182,7 @@ const formatDate = (dateString) => {
 
                                 <ul v-else class="divide-y divide-gray-200">
                                     <li v-for="transaction in recentTransactions" :key="transaction.id" class="py-3">
-                                        <Link :href="route('transactions.show', transaction.id)" class="block hover:bg-gray-50">
+                                        <Link :href="route('cash-flows.show', transaction.cash_flow_id)" class="block hover:bg-gray-50">
                                             <div class="flex justify-between">
                                                 <div>
                                                     <p class="text-sm font-medium text-gray-900">{{ transaction.category.name }}</p>
@@ -199,7 +199,7 @@ const formatDate = (dateString) => {
                                 </ul>
 
                                 <div class="mt-4 text-right">
-                                    <Link :href="route('transactions.index')" class="text-sm text-indigo-600 hover:text-indigo-800">
+                                    <Link :href="route('cash-flows.index')" class="text-sm text-indigo-600 hover:text-indigo-800">
                                         View all transactions →
                                     </Link>
                                 </div>

@@ -4,3 +4,4 @@ This project is a finance app to manage financial records as they need common fi
 ## Dev environment tips
 - Use `bun` instead of `npm` to install packages/run scripts
 - Running tests after done adding/editing all files
+- No need to running syntax errors check in every step
